@@ -3,1881 +3,929 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dashboard Veille — Lundi 20 avril 2026</title>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<title>Dashboard Anthony — 22 avril 2026</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
-* { margin: 0; padding: 0; box-sizing: border-box; }
-body { background: #0f1117; color: #e0e0e0; font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; min-height: 100vh; line-height: 1.55; }
-a { color: #60a5fa; text-decoration: none; word-break: break-word; }
-a:hover { text-decoration: underline; color: #93c5fd; }
-
-.header { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); border-bottom: 1px solid #233554; padding: 18px 28px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.4); }
-.header h1 { font-size: 22px; color: #e94560; font-weight: 700; letter-spacing: 0.5px; }
-.header .date { font-size: 13px; color: #8892b0; }
-
-.day-nav { display: flex; gap: 6px; background: #14162b; padding: 10px 16px; border-bottom: 1px solid #233554; overflow-x: auto; justify-content: center; }
-.day-btn { padding: 8px 16px; border-radius: 8px; border: 1px solid #233554; background: #1a1a2e; color: #8892b0; cursor: pointer; font-size: 12px; font-weight: 600; white-space: nowrap; transition: all 0.2s; text-transform: uppercase; letter-spacing: 0.5px; }
-.day-btn:hover { background: #233554; color: #e0e0e0; }
-.day-btn.active { background: #e94560; color: white; border-color: #e94560; box-shadow: 0 2px 8px rgba(233,69,96,0.4); }
-.day-btn.empty { opacity: 0.4; cursor: not-allowed; }
-.day-btn .d-day { display: block; font-size: 10px; color: inherit; opacity: 0.8; }
-.day-btn .d-num { display: block; font-size: 16px; font-weight: 700; margin-top: 2px; }
-
-.tabs { display: flex; overflow-x: auto; background: #1a1a2e; padding: 0 16px; border-bottom: 1px solid #233554; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 8px rgba(0,0,0,0.3); }
-.tab { padding: 14px 20px; cursor: pointer; color: #8892b0; font-size: 13px; font-weight: 600; border-bottom: 3px solid transparent; white-space: nowrap; transition: all 0.2s; user-select: none; }
-.tab:hover { color: #e0e0e0; }
-.tab.active { color: #e94560; border-bottom-color: #e94560; }
-
-.content-wrap { max-width: 1280px; margin: 0 auto; padding: 24px; }
-.day-view { display: none; }
-.day-view.active { display: block; }
-.tab-content { display: none; }
-.tab-content.active { display: block; animation: fadeIn 0.3s ease; }
-@keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
-
-.empty-state { text-align: center; padding: 80px 20px; color: #8892b0; }
-.empty-state h2 { color: #e94560; margin-bottom: 12px; }
-
-.section-title { font-size: 20px; color: #e94560; border-bottom: 2px solid #e94560; padding-bottom: 10px; margin: 32px 0 18px; font-weight: 700; }
-.section-title:first-of-type { margin-top: 0; }
-.category-title { font-size: 15px; color: #60a5fa; margin: 26px 0 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.2px; padding-left: 12px; border-left: 3px solid #60a5fa; }
-.subcat-title { font-size: 14px; color: #f59e0b; margin: 20px 0 10px; font-weight: 700; }
-
-.card { background: #1a1a2e; border: 1px solid #233554; border-radius: 14px; padding: 22px; margin-bottom: 18px; box-shadow: 0 2px 12px rgba(0,0,0,0.35); }
-.card h3 { color: #e0e0e0; font-size: 16px; margin-bottom: 12px; }
-.item { padding: 14px 0; border-bottom: 1px solid #1e2d4a; }
-.item:last-child { border-bottom: none; }
-.item-title { font-weight: 600; margin-bottom: 6px; color: #e0e0e0; font-size: 14px; }
-.item-desc { font-size: 13px; color: #a8b2c7; line-height: 1.6; }
-.item-meta { font-size: 11px; color: #6b7280; margin-top: 6px; }
-
-.tag { display: inline-block; padding: 3px 10px; border-radius: 6px; font-size: 11px; margin: 4px 4px 0 0; font-weight: 600; letter-spacing: 0.3px; }
-.tag-red { background: rgba(233,69,96,0.18); color: #e94560; border: 1px solid rgba(233,69,96,0.4); }
-.tag-blue { background: rgba(96,165,250,0.18); color: #60a5fa; border: 1px solid rgba(96,165,250,0.4); }
-.tag-green { background: rgba(74,222,128,0.18); color: #4ade80; border: 1px solid rgba(74,222,128,0.4); }
-.tag-orange { background: rgba(245,158,11,0.18); color: #f59e0b; border: 1px solid rgba(245,158,11,0.4); }
-.tag-purple { background: rgba(168,85,247,0.18); color: #a855f7; border: 1px solid rgba(168,85,247,0.4); }
-.tag-gray { background: rgba(148,163,184,0.18); color: #94a3b8; border: 1px solid rgba(148,163,184,0.4); }
-
-.kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 14px; margin-bottom: 26px; }
-.kpi { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); border: 1px solid #233554; border-radius: 14px; padding: 18px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.35); transition: transform 0.2s; }
-.kpi:hover { transform: translateY(-2px); }
-.kpi .label { font-size: 11px; color: #8892b0; text-transform: uppercase; letter-spacing: 1.2px; font-weight: 600; }
-.kpi .value { font-size: 26px; font-weight: 700; margin: 6px 0; color: #e0e0e0; }
-.kpi .change { font-size: 12px; margin-top: 4px; font-weight: 600; }
-.up { color: #4ade80; }
-.down { color: #e94560; }
-.neutral { color: #8892b0; }
-
-.checkbox-item { display: flex; align-items: flex-start; gap: 12px; padding: 10px 12px; cursor: pointer; border-radius: 8px; transition: background 0.2s; }
-.checkbox-item:hover { background: rgba(35,53,84,0.3); }
-.checkbox-item input[type="checkbox"] { margin-top: 3px; accent-color: #e94560; width: 16px; height: 16px; cursor: pointer; }
-.checkbox-item.done { opacity: 0.45; }
-.checkbox-item.done .cb-text { text-decoration: line-through; }
-.cb-text { font-size: 14px; line-height: 1.5; }
-
-.alert-card { border-left: 4px solid #e94560; }
-.alert-card.info { border-left-color: #60a5fa; }
-.alert-card.success { border-left-color: #4ade80; }
-.alert-card.warning { border-left-color: #f59e0b; }
-
-.table-wrap { overflow-x: auto; margin: 14px 0; }
-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-th { background: #233554; color: #e0e0e0; padding: 12px 14px; text-align: left; font-weight: 700; text-transform: uppercase; font-size: 11px; letter-spacing: 0.8px; }
-td { padding: 11px 14px; border-top: 1px solid #1e2d4a; color: #a8b2c7; }
-tr:hover td { background: rgba(35,53,84,0.25); }
-
-.countdown { display: inline-block; background: #e94560; color: white; padding: 4px 10px; border-radius: 6px; font-weight: 700; font-size: 13px; }
-
-.terrain-card { background: #16213e; border: 1px solid #233554; border-radius: 10px; padding: 16px; margin-bottom: 12px; }
-.terrain-head { display: flex; justify-content: space-between; align-items: start; gap: 12px; margin-bottom: 8px; flex-wrap: wrap; }
-.terrain-ville { font-weight: 700; color: #e0e0e0; font-size: 15px; }
-.terrain-prix { color: #4ade80; font-weight: 700; font-size: 14px; white-space: nowrap; }
-.terrain-meta { font-size: 12px; color: #8892b0; margin: 4px 0 8px; }
-
-.chart-container { background: #1a1a2e; border: 1px solid #233554; border-radius: 14px; padding: 20px; margin-bottom: 18px; }
-.chart-container canvas { max-height: 280px; }
-
-.quote { border-left: 3px solid #f59e0b; padding: 12px 18px; background: rgba(245,158,11,0.06); border-radius: 0 8px 8px 0; margin: 14px 0; font-style: italic; color: #e0e0e0; }
-
-.footnote { font-size: 11px; color: #6b7280; margin-top: 12px; font-style: italic; }
-
-@media (max-width: 768px) {
-  .kpi-grid { grid-template-columns: repeat(2, 1fr); }
-  .content-wrap { padding: 16px; }
-  .tab { padding: 12px 14px; font-size: 12px; }
-  .header h1 { font-size: 17px; }
-  .section-title { font-size: 17px; }
-}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0f1117;color:#e5e7eb;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;line-height:1.6;padding:20px;max-width:1400px;margin:0 auto}
+h1{color:#e94560;font-size:2rem;margin-bottom:4px}
+h2{color:#60a5fa;font-size:1.5rem;margin:32px 0 16px;border-bottom:2px solid #233554;padding-bottom:8px;display:flex;align-items:center;gap:10px}
+h3{color:#4ade80;font-size:1.2rem;margin:24px 0 12px}
+h4{color:#f59e0b;font-size:1rem;margin:16px 0 8px;text-transform:uppercase;letter-spacing:0.5px}
+.subtitle{color:#9ca3af;font-size:0.95rem;margin-bottom:20px}
+.nav-dates{display:flex;gap:8px;margin:20px 0 32px;flex-wrap:wrap}
+.nav-dates button{background:#1a1a2e;border:1px solid #233554;color:#e5e7eb;padding:10px 16px;border-radius:8px;cursor:pointer;font-size:0.9rem;transition:all 0.2s}
+.nav-dates button:hover{background:#233554}
+.nav-dates button.active{background:#e94560;border-color:#e94560;color:#fff;font-weight:600}
+.card{background:#1a1a2e;border:1px solid #233554;border-radius:12px;padding:20px;margin-bottom:20px;box-shadow:0 2px 8px rgba(0,0,0,0.3)}
+.card:hover{border-color:#60a5fa}
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:24px}
+.kpi{background:#1a1a2e;border:1px solid #233554;border-radius:12px;padding:20px;box-shadow:0 2px 8px rgba(0,0,0,0.3)}
+.kpi-label{color:#9ca3af;font-size:0.8rem;text-transform:uppercase;letter-spacing:0.5px}
+.kpi-value{color:#fff;font-size:1.6rem;font-weight:700;margin:8px 0 4px}
+.kpi-change{font-size:0.9rem;font-weight:600}
+.up{color:#4ade80}
+.down{color:#e94560}
+.neutral{color:#f59e0b}
+.badge{display:inline-block;padding:3px 10px;border-radius:12px;font-size:0.75rem;font-weight:600;margin-right:6px;margin-bottom:4px}
+.badge-red{background:rgba(233,69,96,0.15);color:#e94560;border:1px solid rgba(233,69,96,0.3)}
+.badge-green{background:rgba(74,222,128,0.15);color:#4ade80;border:1px solid rgba(74,222,128,0.3)}
+.badge-orange{background:rgba(245,158,11,0.15);color:#f59e0b;border:1px solid rgba(245,158,11,0.3)}
+.badge-blue{background:rgba(96,165,250,0.15);color:#60a5fa;border:1px solid rgba(96,165,250,0.3)}
+a{color:#60a5fa;text-decoration:none}
+a:hover{text-decoration:underline}
+ul{padding-left:20px;margin:8px 0}
+li{margin-bottom:8px}
+.item{background:rgba(15,17,23,0.6);border-left:3px solid #60a5fa;padding:14px 16px;margin-bottom:12px;border-radius:6px}
+.item strong{color:#fff}
+.item-title{color:#fff;font-weight:600;margin-bottom:6px}
+.item-meta{color:#9ca3af;font-size:0.85rem;margin-top:6px}
+table{width:100%;border-collapse:collapse;margin:12px 0;font-size:0.88rem}
+th{background:#0f1117;color:#60a5fa;text-align:left;padding:10px;border-bottom:2px solid #233554}
+td{padding:10px;border-bottom:1px solid #233554;vertical-align:top}
+tr:hover td{background:#15162a}
+.checklist-item{display:flex;align-items:flex-start;gap:10px;padding:10px;background:rgba(15,17,23,0.6);border-radius:6px;margin-bottom:8px}
+.checklist-item input[type=checkbox]{margin-top:4px;width:18px;height:18px;cursor:pointer;accent-color:#4ade80}
+.checklist-item label{flex:1;cursor:pointer}
+.checklist-item.done label{text-decoration:line-through;color:#6b7280}
+.section-sep{height:2px;background:linear-gradient(90deg,transparent,#233554,transparent);margin:40px 0;border:0}
+.alert{background:rgba(233,69,96,0.1);border:1px solid rgba(233,69,96,0.3);border-left:4px solid #e94560;padding:14px 16px;border-radius:6px;margin-bottom:12px}
+.alert-green{background:rgba(74,222,128,0.1);border-color:rgba(74,222,128,0.3);border-left-color:#4ade80}
+.alert-orange{background:rgba(245,158,11,0.1);border-color:rgba(245,158,11,0.3);border-left-color:#f59e0b}
+.alert-blue{background:rgba(96,165,250,0.1);border-color:rgba(96,165,250,0.3);border-left-color:#60a5fa}
+.tag{display:inline-block;background:#233554;color:#cbd5e1;padding:2px 8px;border-radius:4px;font-size:0.7rem;margin-right:4px}
+.day-content{display:none}
+.day-content.active{display:block}
+.chart-container{background:#1a1a2e;border:1px solid #233554;border-radius:12px;padding:20px;margin:20px 0;height:320px;box-shadow:0 2px 8px rgba(0,0,0,0.3)}
+header{margin-bottom:20px;padding-bottom:12px;border-bottom:1px solid #233554}
+.section-subtitle{color:#9ca3af;font-size:0.9rem;margin:8px 0 16px;font-style:italic}
+.countdown{background:linear-gradient(135deg,rgba(233,69,96,0.2),rgba(245,158,11,0.1));border:1px solid rgba(233,69,96,0.3);padding:14px 16px;border-radius:8px;margin-bottom:16px}
+.countdown strong{color:#e94560;font-size:1.2rem}
+.priority-star{color:#f59e0b;font-weight:700}
+.cat-header{background:linear-gradient(90deg,rgba(96,165,250,0.15),transparent);padding:10px 16px;border-left:4px solid #60a5fa;margin:24px 0 12px;border-radius:4px}
+.cat-header h3{margin:0;color:#60a5fa}
 </style>
 </head>
 <body>
+<header>
+<h1>📊 Dashboard Quotidien — Anthony Ciccomancini</h1>
+<div class="subtitle">Mercredi 22 avril 2026 · Space Data · Selfstock · Formation IA · Data Center</div>
+</header>
 
-<div class="header">
-  <h1>Dashboard Veille Strategique — Anthony Ciccomancini</h1>
-  <div class="date" id="currentDate">Lundi 20 avril 2026 — Genere automatiquement</div>
+<nav class="nav-dates" id="nav-dates">
+<button data-day="2026-04-16">Jeu 16 avr</button>
+<button data-day="2026-04-17">Ven 17 avr</button>
+<button data-day="2026-04-18">Sam 18 avr</button>
+<button data-day="2026-04-19">Dim 19 avr</button>
+<button data-day="2026-04-20">Lun 20 avr</button>
+<button data-day="2026-04-21">Mar 21 avr</button>
+<button data-day="2026-04-22" class="active">Mer 22 avr</button>
+</nav>
+
+<div class="day-content active" data-day="2026-04-22">
+
+<!-- 1. VUE D'ENSEMBLE -->
+<h2>🎯 1. Vue d'ensemble</h2>
+
+<div class="kpi-grid">
+<div class="kpi"><div class="kpi-label">Bitcoin</div><div class="kpi-value">76 535 $</div><div class="kpi-change up">▲ +0,8 % (24h)</div></div>
+<div class="kpi"><div class="kpi-label">Ethereum</div><div class="kpi-value">2 322 $</div><div class="kpi-change up">▲ +0,3 % (24h)</div></div>
+<div class="kpi"><div class="kpi-label">GEOD</div><div class="kpi-value">0,12 $</div><div class="kpi-change down">▼ –14 % (7j)</div></div>
+<div class="kpi"><div class="kpi-label">Terrains vérifiés PACA</div><div class="kpi-value">19</div><div class="kpi-change neutral">Annonces directes</div></div>
+<div class="kpi"><div class="kpi-label">Actions urgentes</div><div class="kpi-value">7</div><div class="kpi-change down">Dont 3 deadlines</div></div>
+<div class="kpi"><div class="kpi-label">AI Act — J–102</div><div class="kpi-value">2 août 2026</div><div class="kpi-change neutral">Article 4 actif</div></div>
 </div>
 
-<!-- DAY NAVIGATION -->
-<div class="day-nav" id="dayNav">
-  <button class="day-btn active" data-day="20"><span class="d-day">Lun</span><span class="d-num">20</span></button>
-  <button class="day-btn" data-day="19"><span class="d-day">Dim</span><span class="d-num">19</span></button>
-  <button class="day-btn empty" data-day="18"><span class="d-day">Sam</span><span class="d-num">18</span></button>
-  <button class="day-btn empty" data-day="17"><span class="d-day">Ven</span><span class="d-num">17</span></button>
-  <button class="day-btn empty" data-day="16"><span class="d-day">Jeu</span><span class="d-num">16</span></button>
-  <button class="day-btn empty" data-day="15"><span class="d-day">Mer</span><span class="d-num">15</span></button>
-  <button class="day-btn" data-day="14"><span class="d-day">Mar</span><span class="d-num">14</span></button>
+<div class="countdown">
+⏳ <strong>AI Act — application complète dans 102 jours</strong>. Pic de demande formation prévu mai–juillet 2026. Sanctions Art. 4 applicables : jusqu'à 15 M€ ou 3 % CA mondial.
 </div>
 
-<!-- TABS -->
-<div class="tabs" id="tabs">
-  <div class="tab active" data-tab="overview">Vue d'ensemble</div>
-  <div class="tab" data-tab="newsletter">Newsletter IA</div>
-  <div class="tab" data-tab="videos">Videos / Podcasts</div>
-  <div class="tab" data-tab="crypto">Mining / Crypto</div>
-  <div class="tab" data-tab="formation">Formation IA</div>
-  <div class="tab" data-tab="terrains">Terrains PACA</div>
-  <div class="tab" data-tab="datacenter">Usines / Data Center</div>
-  <div class="tab" data-tab="spacedata">Space Data</div>
-  <div class="tab" data-tab="webinaires">Webinaires & Evenements</div>
-  <div class="tab" data-tab="actions">Actions</div>
+<h3>🚨 Alertes par projet</h3>
+
+<h4>— Alertes Space Data</h4>
+<div class="alert alert-blue"><strong>JV GEODASH Aerosystems (DroneDash × GEODNET, 15 avril 2026)</strong> — marché drones pulvérisation agricole industrielle avec corrections GEODNET. Opportunité immédiate de revente d'abonnements RTK aux ETA et coopératives françaises.</div>
+<div class="alert alert-orange"><strong>GEODNET : 20 500+ stations dans 150+ pays</strong>, croissance mensuelle ~18 %. La prime aux hôtes reste active en France dans les zones sans station à 40 km — fenêtre qui se referme.</div>
+<div class="alert"><strong>GEOD –14 % sur 7 jours à 0,12 $</strong> — volatilité forte mais burn Q1 2026 à 1,7 M$ (82 % des émissions). Lisser la trésorerie en convertissant une partie des GEOD en fiat.</div>
+
+<h4>— Alertes Selfstock</h4>
+<div class="alert alert-green"><strong>Vidauban (83) — 13 620 m² à 1,65 M€</strong> — TOP opportunité ZI bord A8/N7, compatible self-stock conteneurs. Contact : Nicolas Valici, Baillet Immobilier — 07 49 92 27 12.</div>
+<div class="alert alert-blue"><strong>Le Broc (06) — 8 000 m² divisibles à 10 000 €/mois</strong> — ZA, bail civil 12 mois, dépôt 2 mois. ACE Immobilier d'Entreprise Nice.</div>
+<div class="alert alert-orange"><strong>Salon-de-Provence — PC purgé 1 500 m² activité + 150 m² bureaux</strong> — 4 062 m² à 1,312 M€ en ZA Gandonne. Permis purgé = gain de 12 à 18 mois sur calendrier.</div>
+
+<h4>— Alertes Formation IA</h4>
+<div class="alert"><strong>AI Act Article 4 — application 2 août 2026 (J–102)</strong>. Toutes les entreprises utilisant l'IA doivent former leurs salariés. Pas de seuil. Accroche à systématiser : « Il vous reste 14 semaines pour être conforme ».</div>
+<div class="alert alert-orange"><strong>Région Sud — dispositif "Mon assistant IA"</strong> : prestation prise en charge à 100 % pour PME PACA. Candidater comme prestataire référencé = pipeline quasi automatique.</div>
+<div class="alert alert-green"><strong>CPF 2026 : participation salarié à 150 €</strong> dès 2 avril 2026 (vs 100 € avant). La certif RS6776 (IA générative) reste la plus mobilisée — partenariat à verrouiller.</div>
+<div class="alert alert-blue"><strong>MarsAI Festival 19 juin + AIM 24–25 sept.</strong> — candidater comme intervenant/atelier dès cette semaine, les slots partent vite.</div>
+
+<h4>— Alertes Data Center</h4>
+<div class="alert alert-green"><strong>Blendecques (62) — 43 490 m² bâtis sur 23 ha, 8,3 MW actuels / 20 MVA admissibles — 5 M€</strong>. LA meilleure opportunité identifiée en France avec puissance exploitable clé en main. Contact : IMMPROVE Industrie & Logistique.</div>
+<div class="alert"><strong>AMI EDF Loire-sur-Rhône (69) — 60 ha, data center >50 MW</strong> — sélection lauréat avril 2026 (deadline réponses 19/01 déjà passée). EDF prévoit 6 AMI au total — se positionner auprès de la Direction Immobilière pour les prochains.</div>
+<div class="alert alert-orange"><strong>AMI Grand Port Dunkerque — 21 ha, 400–700 MW (attestation RTE 700 MW)</strong> — résultat attendu dans quelques mois. Candidature encore possible selon le calendrier officiel.</div>
+<div class="alert alert-blue"><strong>Zones RTE de mutualisation validées : Dunkerque, Le Havre, Plan de Campagne</strong> — 7 000 MW de nouvelles capacités à horizon 2030. Plan de Campagne est dans ta zone PACA.</div>
+
+<div class="chart-container"><canvas id="chartKPI"></canvas></div>
+
+<hr class="section-sep">
+
+<!-- 2. NEWSLETTER IA -->
+<h2>🤖 2. Newsletter IA</h2>
+
+<h3>📰 Gros titres</h3>
+<div class="item"><div class="item-title">Stanford AI Index 2026 — Chine et US désormais au coude-à-coude</div>Course à la dominance IA serrée. L'Europe décroche — argument pour accélérer sur la formation des TPE/PME françaises. <span class="tag">Stratégique</span></div>
+<div class="item"><div class="item-title">Anthropic Claude Opus 4.7 disponible</div>Nouvelle génération du modèle, accent sur la fiabilité agentique. <a href="https://www.anthropic.com/news/claude-opus-4-7" target="_blank">Source Anthropic</a> <span class="tag">Modèle</span></div>
+<div class="item"><div class="item-title">OpenAI + CCI Paris + Booking : TPE/PME françaises gagnent 5h/semaine avec l'IA</div>Chiffre officiel à systématiser dans tes devis de formation. <span class="tag">Formation</span> <span class="tag">ROI</span></div>
+<div class="item"><div class="item-title">Bloomberg — mineurs BTC cotés visent 70 % de revenus IA d'ici fin 2026</div>Pivot massif data center/hébergement GPU. Signal pour Anthony : marché aval très demandeur. <span class="tag">Mining</span> <span class="tag">Pivot</span></div>
+<div class="item"><div class="item-title">IREN × Microsoft — contrat 5 ans à 9,7 Mds $</div>200 MW d'infra GPU liquid-cooled, 1,94 Md$/an run-rate. Benchmark du deal mining→IA. <span class="tag">Deal</span></div>
+<div class="item"><div class="item-title">SEC — "Regulation Crypto" envoyé à la Maison Blanche</div>Chair Atkins — publication imminente. Innovation exemption attendue pour startups. <span class="tag">Régulation</span></div>
+<div class="item"><div class="item-title">GeoAI : marché passe de 35,5 Mds $ (2025) à 828 Mds $ (2034)</div>Opportunité directe pour Space Data de vendre ses flux RTK/atmosphériques aux moteurs IA agri/mining. <span class="tag">Space Data</span></div>
+
+<h3>🛠️ Outils & fonctionnalités</h3>
+<ul>
+<li><strong>Claude Opus 4.7</strong> (Anthropic) — modèle agentique amélioré, meilleurs benchmarks sur les tâches longues</li>
+<li><strong>ANELLO Aerial INS</strong> (CES 2026) — SiPhOG + GNSS intégré pour drones/véhicules autonomes</li>
+<li><strong>u-blox ZED-X20P</strong> — module GNSS haute précision toutes bandes (annonce XPONENTIAL 2026)</li>
+<li><strong>Sealminer A4 Ultra Hydro</strong> (Bitdeer) — ASIC à 9,45 J/TH, record d'efficacité industrielle mining</li>
+<li><strong>GEO-MEASURE</strong> (GEODNET) — CES 2026 Innovation Award, désormais en vente</li>
+<li><strong>u-blox PointPerfect Flex</strong> — plan pay-per-use horaire pour corrections RTK (fin des abonnements obligatoires)</li>
+<li><strong>ARK Electronics modules RTK NDAA-compliant</strong> — conformité US souveraineté, levier export</li>
+<li><strong>OpenAI + CCI Paris — programme TPE/PME</strong> (lancement officiel) pour accompagner l'adoption IA</li>
+<li><strong>DeepLearning.ai — Generative AI for Everyone</strong> (Andrew Ng) — audit gratuit utile pour affûter ton discours</li>
+<li><strong>Anthropic AI Fluency: Framework and Foundations</strong> — 16 certifs officielles, gratuites avec certificat</li>
+<li><strong>Google AI Essentials</strong> — Coursera gratuit, certificat Google (6–8h)</li>
+</ul>
+
+<h3>💼 Use cases professionnels (obligatoire)</h3>
+<div class="item"><div class="item-title">Dairy Queen — voice AI drive-thru à 90 % de précision</div>Presto AI déployé en franchises. Reproductible pour filtrer les appels entrants Selfstock (réservation conteneurs, horaires). <span class="tag">Voice AI</span> <span class="tag">Ops</span></div>
+<div class="item"><div class="item-title">IREN → Microsoft — infra GPU liquid-cooled 200 MW</div>Repositionnement de mineurs en opérateurs IA/HPC. Modèle aval directement transposable aux projets data center France. <span class="tag">Data Center</span></div>
+<div class="item"><div class="item-title">Klarna — IA pour service client (remplace 700 agents)</div>Pilote industrialisé, économie estimée à 40 M$/an. Benchmark pour les DAF/DRH PACA (cas d'école vendable en formation). <span class="tag">Service client</span></div>
+<div class="item"><div class="item-title">Unilever — IA pour R&D formulation</div>Gains temps de mise sur marché 20–30 %. Cible idéale pour tes prospects industriels (cosmétiques, agro PACA). <span class="tag">Industrie</span></div>
+<div class="item"><div class="item-title">BNP Paribas — Claude déployé pour conformité et RH</div>Déploiement sous AI Act, modèle pour ton argumentaire DRH. <span class="tag">Bancaire</span> <span class="tag">Conformité</span></div>
+<div class="item"><div class="item-title">Siemens — copilotes IA pour ingénierie industrielle</div>Réduction 30 % temps de conception. Argument pour formations verticalisées industrie. <span class="tag">Ingénierie</span></div>
+<div class="item"><div class="item-title">Nestlé — IA pour prévision demande et logistique</div>Gains supply chain 15 %. Angle de prospection pour les agro-industriels PACA (filière fruits/légumes, conserverie). <span class="tag">Supply chain</span></div>
+<div class="item"><div class="item-title">GEODASH — drones pulvérisation agricole sans cartographie préalable</div>Corrections RTK + IA de navigation. Cas transposable aux ETA françaises. <span class="tag">AgriTech</span></div>
+<div class="item"><div class="item-title">Carrefour — agents IA pour pricing dynamique</div>Optimisation marges 2–4 %. Vendable en formation aux dirigeants retail. <span class="tag">Retail</span></div>
+<div class="item"><div class="item-title">AXA — underwriting automatisé par IA</div>Tarification personnalisée temps réel. Cible assurance/mutuelle PACA. <span class="tag">Assurance</span></div>
+
+<h3>👤 Applications particuliers</h3>
+<ul>
+<li><strong>Assistants personnels agentiques</strong> — Claude, ChatGPT Tasks deviennent capables de réserver, acheter, planifier de bout en bout</li>
+<li><strong>Génération vidéo</strong> — Sora 2, Runway Gen-5 démocratisés, usage particulier pour reels/contenus personnels</li>
+<li><strong>IA locale sur Mac/PC</strong> — modèles Llama 4/Mistral déployables offline, gains confidentialité</li>
+<li><strong>Tutorat IA personnalisé</strong> — Khan Academy Khanmigo, Duolingo Max en déploiement large</li>
+<li><strong>Wellness IA</strong> — coach sommeil, nutrition, fitness intégrés smartphones</li>
+</ul>
+
+<h3>🌏 Asie</h3>
+<ul>
+<li><strong>Chine</strong> — DeepSeek V4 et Qwen 3 continuent à combler l'écart avec les modèles US sur les benchmarks coding et raisonnement</li>
+<li><strong>Japon</strong> — partenariat SoftBank × OpenAI renforcé, déploiement agents IA entreprise</li>
+<li><strong>Corée du Sud</strong> — Samsung et Naver investissent massivement dans l'IA souveraine (HyperCLOVA X)</li>
+<li><strong>Singapour</strong> — GEODASH Aerosystems JV basée à Singapour, signal d'ouverture Asie pour Space Data</li>
+<li><strong>Inde</strong> — startup ecosystem IA en forte croissance, TPE/PME indiennes adoptent l'IA plus vite que les européennes</li>
+</ul>
+
+<h3>💡 Ce que ça change pour un entrepreneur</h3>
+<ul>
+<li><strong>Argument commercial prêt</strong> : "5h/semaine gagnées" (chiffre OpenAI × CCI Paris) à mettre dans chaque devis de formation</li>
+<li><strong>Fenêtre réglementaire</strong> : 102 jours avant AI Act complet — accroche "J–100 pour être conforme Article 4"</li>
+<li><strong>Pivot data center</strong> : les mineurs BTC qui basculent offrent une opportunité de partenariat foncier (sites avec puissance électrique)</li>
+<li><strong>Space Data + GeoAI</strong> : le marché explose, packager corrections RTK + flux atmosphériques pour moteurs IA agri/mining</li>
+<li><strong>Voice AI service client</strong> : reproduire le modèle Dairy Queen pour Selfstock (appels entrants)</li>
+<li><strong>Certifications gratuites = différenciation PACA</strong> : personne d'autre n'affiche encore les badges Anthropic/AWS/Google en formation locale</li>
+</ul>
+
+<hr class="section-sep">
+
+<!-- 3. VIDÉOS/PODCASTS -->
+<h2>🎥 3. Vidéos / Podcasts (international)</h2>
+<p class="section-subtitle">Sélection US, Asie, Europe — liens directs YouTube/plateformes</p>
+
+<div class="cat-header"><h3>🇺🇸 États-Unis</h3></div>
+<ul>
+<li><strong>Lex Fridman Podcast</strong> — entretiens long-format IA/Crypto/Science · <a href="https://www.youtube.com/@lexfridman" target="_blank">YouTube</a></li>
+<li><strong>a16z Podcast</strong> — Andreessen Horowitz, analyses marchés IA et infra · <a href="https://www.youtube.com/@a16z" target="_blank">YouTube</a></li>
+<li><strong>All-In Podcast</strong> — Chamath, Sacks, Calacanis, Friedberg — actu tech + macro · <a href="https://www.youtube.com/@allin" target="_blank">YouTube</a></li>
+<li><strong>Matt Wolfe — Future Tools</strong> — outils IA, recaps hebdo · <a href="https://www.youtube.com/@mreflow" target="_blank">YouTube</a></li>
+<li><strong>Matthew Berman</strong> — benchmarks LLM, agents IA · <a href="https://www.youtube.com/@matthew_berman" target="_blank">YouTube</a></li>
+<li><strong>Dwarkesh Patel</strong> — interviews profondes Silicon Valley · <a href="https://www.youtube.com/@DwarkeshPatel" target="_blank">YouTube</a></li>
+<li><strong>Bloomberg Crypto</strong> — chaîne actu marché · <a href="https://www.youtube.com/@BloombergTelevision" target="_blank">YouTube</a></li>
+</ul>
+
+<div class="cat-header"><h3>🌏 Asie</h3></div>
+<ul>
+<li><strong>Asianometry</strong> — semi-conducteurs, géopolitique tech · <a href="https://www.youtube.com/@Asianometry" target="_blank">YouTube</a></li>
+<li><strong>CNBC Asia — Tech</strong> — actu IA/crypto Asie · <a href="https://www.youtube.com/@CNBC" target="_blank">YouTube</a></li>
+<li><strong>South China Morning Post Tech</strong> — innovations chinoises · <a href="https://www.youtube.com/@SCMP" target="_blank">YouTube</a></li>
+</ul>
+
+<div class="cat-header"><h3>🇪🇺 Europe / 🇫🇷 France</h3></div>
+<ul>
+<li><strong>Underscore_</strong> (Micode) — vulgarisation IA/tech FR · <a href="https://www.youtube.com/@Underscore_" target="_blank">YouTube</a></li>
+<li><strong>Géopoliticus</strong> (Thomas Gomart) — géopolitique IA/technologies · <a href="https://www.youtube.com/@geopoliticus" target="_blank">YouTube</a></li>
+<li><strong>Generation IA</strong> — podcast Les Echos sur IA en entreprise · <a href="https://www.lesechos.fr/start-up/generation-ia" target="_blank">Les Echos</a></li>
+<li><strong>Splash — Julien Quintard</strong> — actu crypto/mining FR · <a href="https://www.youtube.com/@SplashCrypto" target="_blank">YouTube</a></li>
+</ul>
+
+<div class="cat-header"><h3>📡 GNSS / Géospatial (spécialisé)</h3></div>
+<ul>
+<li><strong>GPS World</strong> — analyses marché GNSS/RTK · <a href="https://www.gpsworld.com/" target="_blank">Site</a></li>
+<li><strong>Inside GNSS</strong> — webinaires techniques · <a href="https://insidegnss.com/" target="_blank">Site</a></li>
+<li><strong>GEODNET YouTube</strong> — updates réseau, GIP votes · <a href="https://www.youtube.com/@Geodnet" target="_blank">YouTube</a></li>
+</ul>
+
+<hr class="section-sep">
+
+<!-- 4. MINING / CRYPTO -->
+<h2>⛏️ 4. Mining / Crypto</h2>
+
+<div class="kpi-grid">
+<div class="kpi"><div class="kpi-label">BTC</div><div class="kpi-value">76 535 $</div><div class="kpi-change up">▲ +0,8 %</div></div>
+<div class="kpi"><div class="kpi-label">ETH</div><div class="kpi-value">2 322 $</div><div class="kpi-change up">▲ +0,3 %</div></div>
+<div class="kpi"><div class="kpi-label">GEOD</div><div class="kpi-value">0,12 $</div><div class="kpi-change down">▼ –14 % (7j)</div></div>
+<div class="kpi"><div class="kpi-label">Hashrate BTC</div><div class="kpi-value">995 EH/s</div><div class="kpi-change up">~1 ZH/s</div></div>
+<div class="kpi"><div class="kpi-label">Difficulté</div><div class="kpi-value">135,59 T</div><div class="kpi-change down">▼ –2,43 %</div></div>
+<div class="kpi"><div class="kpi-label">Hashprice</div><div class="kpi-value">+13,65 %</div><div class="kpi-change up">▲ ré-ajustement</div></div>
 </div>
 
-<div class="content-wrap">
+<div class="chart-container"><canvas id="chartCrypto"></canvas></div>
 
-<!-- =========================================================
-     DAY VIEW : LUNDI 20 AVRIL 2026
-     ========================================================= -->
-<div class="day-view active" id="day-20">
+<h3>📈 Marché</h3>
+<ul>
+<li><strong>BTC ~76 500 $</strong> — support immédiat 76 000 $, résistance clé 80 000 $. Marchés de prédiction : 42,5 % de probabilité d'atteindre 80 k$ avant fin avril.</li>
+<li><strong>ETH ~2 320 $</strong> — consolidation zone 2 330–2 350 $. 18 indicateurs baissiers vs 12 haussiers. Sortie continue d'ETF + concurrence L2.</li>
+<li><strong>ATH rappel</strong> : BTC 126 198 $ (06/10/2025), ETH 4 954 $ (24/08/2025).</li>
+</ul>
 
-<!-- =========== TAB : OVERVIEW =========== -->
-<div class="tab-content active" data-tab="overview">
-  <h2 class="section-title">Vue d'ensemble — Lundi 20 avril 2026</h2>
+<h3>⛏️ Mining</h3>
+<ul>
+<li><strong>Hashrate record 995 EH/s</strong> — approche du seuil mythique du zettahash. Intervalle moyen 9 min 35 s → retarget haussier probable ~30 avril.</li>
+<li><strong>32 000+ BTC liquidés par les mineurs au T1 2026</strong>. Revenus quotidiens tombés de ~900 BTC à ~437 BTC depuis halving 2024 (–51 %).</li>
+<li><strong>Rentabilité tendue</strong> : viable uniquement avec hardware ≤13,5 J/TH et électricité ≤ 0,06–0,08 $/kWh. Seuil shutdown ~55 000 $ (S21 XP) vs 75 000 $ (flottes anciennes).</li>
+<li><strong>Bitdeer Sealminer A4 Ultra Hydro</strong> (7 avril) — 9,45 J/TH, record d'efficacité industrielle, puces SEAL04.</li>
+</ul>
 
-  <div class="kpi-grid">
-    <div class="kpi">
-      <div class="label">Bitcoin (BTC)</div>
-      <div class="value" style="color:#f7931a;">~$75 000</div>
-      <div class="change down">-19% YTD</div>
-    </div>
-    <div class="kpi">
-      <div class="label">Ethereum (ETH)</div>
-      <div class="value" style="color:#627eea;">~$2 450</div>
-      <div class="change down">-27% YTD</div>
-    </div>
-    <div class="kpi">
-      <div class="label">GEODNET (GEOD)</div>
-      <div class="value" style="color:#4ade80;">~$0,13</div>
-      <div class="change neutral">~$54M cap</div>
-    </div>
-    <div class="kpi">
-      <div class="label">Terrains PACA</div>
-      <div class="value">12</div>
-      <div class="change neutral">4 nouveaux ce jour</div>
-    </div>
-    <div class="kpi">
-      <div class="label">Actions urgentes</div>
-      <div class="value" style="color:#e94560;">9</div>
-      <div class="change neutral">cette semaine</div>
-    </div>
-    <div class="kpi">
-      <div class="label">AI Act — H-104 jours</div>
-      <div class="value" style="color:#f59e0b;"><span class="countdown">2 aout</span></div>
-      <div class="change neutral">sanctions France</div>
-    </div>
-  </div>
+<h3>⚖️ Régulation</h3>
+<ul>
+<li><strong>SEC "Regulation Crypto"</strong> — proposition Chair Atkins envoyée à la Maison Blanche (OIRA), publication imminente. Vise Securities Act 1933. Innovation exemption attendue.</li>
+<li><strong>FATF</strong> — déclaration 17/04 pressant États sur lacunes actifs numériques. Stablecoins = 84 % du volume illicite crypto 2025.</li>
+<li><strong>Congrès US</strong> — CLARITY Act bloqué par SAVE Act de Trump. Agenda législatif freiné.</li>
+</ul>
 
-  <h3 class="category-title">Alertes Space Data</h3>
-  <div class="card alert-card warning">
-    <div class="item">
-      <div class="item-title">🚨 GEODNET lance GEODASH Aerosystems — JV avec DroneDash (15 avril)</div>
-      <div class="item-desc">JV incorporee a Singapour : drone agricole RTK-AI map-free, lancement commercial T3 2026, cibles palmier huile SE Asie, soja/mais US, canne a sucre LATAM. GEODNET etend son modele "citoyen-operateur" vers des solutions applicatives. <strong>Risque : absorption de notre modele hote par un concurrent a effet reseau plus fort.</strong> A surveiller : s'ils ajoutent des capteurs atmos.</div>
-      <a href="https://www.roboticstomorrow.com/news/2026/04/15/dronedash-and-geodnet-launch-geodash-aerosystems-to-bring-map-free-ai-driven-precision-spraying-to-industrial-agriculture/26422/" target="_blank" rel="noopener">Article RoboticsTomorrow →</a>
-      <span class="tag tag-red">Menace directe</span><span class="tag tag-orange">GEODNET</span>
-    </div>
-    <div class="item">
-      <div class="item-title">🎯 Opportunite massive : NOAA NESDIS draft RFP "SBEM IDIQ" — plafond "milliards sur 10 ans"</div>
-      <div class="item-desc">Draft RFP publie sur SAM.gov le 12 mars 2026. Industry Day tenu le 9 avril. Contrat IDIQ Space-Based Environmental Monitoring — <strong>fenetre d'action immediate</strong>. Candidater en direct OU identifier un prime US (PlanetiQ a recupere $24M pour 7 000 profils atmos/jour — benchmark de prix).</div>
-      <a href="https://www.nesdis.noaa.gov/news/engaging-commercial-weather-satellite-companies-nesdis-sets-date-industry-day-review-upcoming-environmental-monitoring-contract" target="_blank" rel="noopener">NOAA NESDIS Industry Day →</a>
-      <span class="tag tag-green">Opportunite majeure</span><span class="tag tag-blue">NOAA</span>
-    </div>
-    <div class="item">
-      <div class="item-title">WeatherXM franchit les 9 600+ stations chez des particuliers dans 98 pays</div>
-      <div class="item-desc">1,5M+ station-days cumules. Deploiement de 30 stations haute precision dans le Peloponnese (fev-avril 2026) pour zones a risque d'inondation. <strong>Menace directe sur notre modele hote</strong>, meme s'ils restent axes meteo de surface (sans profils atmos verticaux). Differenciation Space Data a renforcer : profils atmos verticaux, clients institutionnels, qualite metrologique.</div>
-      <a href="https://weatherxm.com/" target="_blank" rel="noopener">WeatherXM Network →</a>
-      <span class="tag tag-red">Menace forte</span><span class="tag tag-purple">DePIN</span>
-    </div>
-    <div class="item">
-      <div class="item-title">u-blox ZED-X20D/X20P commoditise le GNSS haute precision</div>
-      <div class="item-desc">ZED-X20D (heading dual-antenne), X20P multi-bandes 672 canaux. Prix plateforme X20 accessible mass-market. <strong>Opportunite</strong> : reduire notre BOM station de 15-25% en migrant F9P -> X20. <strong>Menace</strong> : des integrateurs tiers peuvent combiner X20 + capteurs atmos low-cost.</div>
-      <a href="https://insidegnss.com/u-blox-introduces-zed-x20d-gnss-heading-module-for-mass-market-high-precision-applications/" target="_blank" rel="noopener">InsideGNSS u-blox X20D →</a>
-      <span class="tag tag-orange">Technologie</span>
-    </div>
-  </div>
+<h3>🤖 IA × Mining</h3>
+<ul>
+<li><strong>70 % revenus IA/HPC visés fin 2026</strong> par les mineurs cotés (vs ~30 % T4 2025). 70 Mds $ de contrats IA/HPC cumulés déjà signés.</li>
+<li><strong>IREN × Microsoft 9,7 Mds $ sur 5 ans</strong> — 200 MW GPU liquid-cooled, ~1,94 Md$/an run-rate.</li>
+<li><strong>Économie du pivot</strong> : sites de puissance délivrent 3 à 25× plus de revenus/MW en IA qu'en mining, avec 80–90 % de marge.</li>
+<li><strong>Optimisation IA du mining</strong> : systèmes IA-natifs gagnent 15–30 % d'efficacité selon conditions énergétiques/hardware.</li>
+<li><strong>Tension énergétique</strong> : data centers IA surenchérissent sur l'électricité, érodant le moat "cheap power" des mineurs.</li>
+</ul>
 
-  <h3 class="category-title">Alertes Selfstock</h3>
-  <div class="card alert-card info">
-    <div class="item">
-      <div class="item-title">📍 4 nouvelles annonces verifiees identifiees ce jour (13, 83, 84)</div>
-      <div class="item-desc">Hyeres ZI Saint-Martin 1 600 m² 900 000 € HT (forte pertinence), Avignon 29 500 m² zone UT (tres forte pertinence), La Valette-du-Var 4 275 m² zone Valgora avec bati, Toulon 4 560 m². Voir onglet Terrains.</div>
-      <span class="tag tag-green">Nouvelles annonces</span>
-    </div>
-    <div class="item">
-      <div class="item-title">⚠️ 06 et 04/05 restent secs sur les annonces zone industrielle</div>
-      <div class="item-desc">Aucun terrain ZI identifie ce jour sur 06, 04, 05. Veille a maintenir + prospection directe intercommunalites recommandee (communautes de communes, agences de developpement economique).</div>
-      <span class="tag tag-orange">Trou geographique</span>
-    </div>
-    <div class="item">
-      <div class="item-title">Tendance marche self-stockage 2026 : l'IA entre dans les operations</div>
-      <div class="item-desc">Selon SteelBlueBC, l'IA transforme le self-stockage : pricing dynamique, tarification par cluster, maintenance predictive et upsell. A integrer a la proposition Selfstock pour differencier vs. les acteurs classiques conteneurs.</div>
-      <a href="https://www.steelbluebc.com/news-posts/the-ai-evolution-is-here-how-self-storage-is-getting-smarter-and-more-profitable" target="_blank" rel="noopener">SteelBlue — AI & Self-Storage →</a>
-      <span class="tag tag-blue">Tendance</span>
-    </div>
-  </div>
+<h3>📡 GEODNET / DePIN</h3>
+<ul>
+<li><strong>20 500+ stations RTK dans 150+ pays</strong>, croissance mensuelle ~18 %, revenu annualisé > 5–6 M$.</li>
+<li><strong>Burn Q1 2026 : 1,7 M$ de GEOD</strong> = 82 % des émissions neutralisées. Trajectoire net-positive visée 2026–2027.</li>
+<li><strong>JV GEODASH Aerosystems</strong> (DroneDash × GEODNET, Singapour, 15 avril) — drones pulvérisation agricole IA sans cartographie préalable.</li>
+<li><strong>GIP-7 voté</strong> — renforcement gouvernance/performance. Performance Staking sur Solana prévu Q1 2026.</li>
+<li><strong>Prévisions GEOD 2026</strong> : 0,128–0,244 $ selon sources. Volatilité forte à court terme.</li>
+</ul>
 
-  <h3 class="category-title">Alertes Formation IA</h3>
-  <div class="card alert-card warning">
-    <div class="item">
-      <div class="item-title">🔥 AI Act France : sanctions applicables le 2 aout 2026 — H-104 jours</div>
-      <div class="item-desc">Article 4 (maitrise de l'IA) deja en vigueur depuis le 2 fevrier 2025. Sanctions jusqu'a 35 M€ ou 7% CA mondial (pratiques interdites), 15 M€ ou 3% (non-conformite obligations). Tout salarie utilisateur + managers/dirigeants doivent etre formes. <strong>Opportunite differenciante : pack "AI Act Starter" 2h avec attestation</strong>. Cible PME 10-250 salaries.</div>
-      <a href="https://www.quillet-digital.com/actualite-du-web/ai-act-france-entreprises-2026" target="_blank" rel="noopener">Quillet Digital — AI Act France 2026 →</a>
-      <span class="tag tag-red">Priorite 1</span><span class="tag tag-green">Opportunite</span>
-    </div>
-    <div class="item">
-      <div class="item-title">⚠️ Reforme CPF en vigueur depuis le 2 avril 2026 — 150 € de reste a charge</div>
-      <div class="item-desc">Plafonnement des droits a 1 500 €. Argumentaire "ROI formation" indispensable. Prevoir reformulation commerciale sur tous tes prospects CPF.</div>
-      <a href="https://www.data-bird.co/blog/reforme-cpf-2026" target="_blank" rel="noopener">Reforme CPF 2026 — Data Bird →</a>
-      <span class="tag tag-orange">Commercial</span>
-    </div>
-    <div class="item">
-      <div class="item-title">Qualiopi reforme 2026 : extension obligatoire a tous les OF preparant a une certification</div>
-      <div class="item-desc">Sans Qualiopi : pas d'OPCO, pas de CPF, pas de FSE+. Obligation meme sans financement public. Audits renforces, dirigeant present obligatoire. <strong>Si pas encore Qualiopi, c'est la priorite absolue ce mois-ci.</strong></div>
-      <a href="https://certifopac.fr/qualiopi/actualites/reforme-2026/" target="_blank" rel="noopener">Reforme Qualiopi 2026 →</a>
-      <span class="tag tag-red">Priorite absolue</span>
-    </div>
-    <div class="item">
-      <div class="item-title">💡 Claude Certified Architect — premiere certification officielle Anthropic</div>
-      <div class="item-desc">60 QCM, 120 min, 99 $. Architecture agentique, Claude Code, prompt engineering, tool integration, context management. <strong>Differenciation enorme</strong> sur le marche francais (quasi aucun formateur certifie a ce jour).</div>
-      <a href="https://anthropic.skilljar.com/" target="_blank" rel="noopener">Anthropic Academy →</a>
-      <span class="tag tag-green">Certification strategique</span>
-    </div>
-  </div>
+<hr class="section-sep">
 
-  <h3 class="category-title">Alertes Data Center</h3>
-  <div class="card alert-card warning">
-    <div class="item">
-      <div class="item-title">⭐ 5 sites exceptionnels identifies ce jour — dont Thaon-les-Vosges 40 ha 400 kV + 63 kV</div>
-      <div class="item-desc">Thaon (88) 40 ha avec 2 raccordements existants 400 kV + 63 kV, capacite 450 MW possibles, canal + TGV + A3km. Prix sur demande. <strong>Unique sur le marche francais.</strong> + Datalok VT-2025-001 12 ha 150 MW (etude RTE validee) a 16 M€ total. Voir onglet Data Center.</div>
-      <a href="https://immo-hub.org/terrains-et-locaux-d-activites/a-vendre-friche-industrielle-de-40-hectares-a-thaon-les-vosges-vosges-88" target="_blank" rel="noopener">Annonce Thaon 40 ha →</a>
-      <span class="tag tag-green">Opportunite 5/5</span>
-    </div>
-    <div class="item">
-      <div class="item-title">AMI Grand Port Maritime de Dunkerque — 21 ha, 400-700 MW engagement RTE</div>
-      <div class="item-desc">AMI lance debut 2026. Terrain 21 ha, puissance cible 400-700 MW, infrastructure existante, engagement raccordement RTE 700 MW. A cibler pour un positionnement en co-investisseur ou sous-traitant d'un prime hyperscaler.</div>
-      <a href="https://dcmag.fr/le-grand-port-maritime-de-dunkerque-lance-un-ami-pour-un-datacenter-entre-400-et-700-mw/" target="_blank" rel="noopener">DCmag — AMI Dunkerque →</a>
-      <span class="tag tag-blue">AMI ouvert</span>
-    </div>
-    <div class="item">
-      <div class="item-title">Marche France data center : 5,8 GW deja securises sur 28,6 GW demandes (RTE)</div>
-      <div class="item-desc">26 sites sur 63 identifies par le gouvernement sont deja attribues (statut avril 2026). 37 sites connectes a l'energie encore en attente. Concentration Hauts-de-France (8), IdF (7), PACA (entree cables sous-marins), Grand Est, Vallee du Rhone.</div>
-      <a href="https://www.lemagit.fr/actualites/366638581/Datacenters-pour-lIA-la-France-se-felicite-davancees-rapides" target="_blank" rel="noopener">LeMagIT — Datacenters France →</a>
-      <span class="tag tag-orange">Marche</span>
-    </div>
-    <div class="item">
-      <div class="item-title">🧠 Bascule historique : 70% des revenus miners cotes viendront de l'IA fin 2026 (CoinShares)</div>
-      <div class="item-desc">MARA, Core Scientific, TeraWulf vendent leur BTC pour financer leur bascule IA/data center. Anthropic a signe un deal multi-gigawatt — nouveau concurrent direct des miners pour la cheap power. <strong>Opportunite Anthony : se positionner en intermediaire / conseil sur la reconversion mining -> HPC pour les petits operateurs francais.</strong></div>
-      <a href="https://www.bloomberg.com/news/articles/2026-04-15/ai-pivot-pushes-bitcoin-miners-toward-a-70-revenue-milestone" target="_blank" rel="noopener">Bloomberg →</a>
-      <a href="https://www.coindesk.com/tech/2026/04/07/bitcoin-miners-face-a-new-rival-for-cheap-power-as-anthropic-signs-multi-gigawatt-compute-deal" target="_blank" rel="noopener">CoinDesk Anthropic →</a>
-      <span class="tag tag-green">Opportunite reconversion</span>
-    </div>
-  </div>
+<!-- 5. FORMATION IA -->
+<h2>🎓 5. Formation IA — guide Anthony</h2>
+
+<h3>💰 Aides & financements</h3>
+<ul>
+<li><strong>OPCO</strong> — 100 % du coût pédagogique pour PME <50 salariés (ex. AKTO : ~2 700 € sur une formation à 4 500 €). Dépôt 3–6 semaines avant démarrage. Qualiopi impératif.</li>
+<li><strong>FNE-Formation</strong> — N'EST PLUS mobilisable depuis 31/12/2024. Modalités 2025–2026 non publiées. <span class="badge badge-red">À retirer des propositions</span></li>
+<li><strong>France 2030 "Pionniers de l'IA"</strong> — jusqu'à 8 M€ sur 3 phases. Deadlines 5 nov. 2025 (passée) + 9 juin 2026. Angle de prospection : entreprises candidates besoin formation pré-dépôt.</li>
+<li><strong>Région Sud "Mon assistant IA" + Move2Digital</strong> — prestation 100 % prise en charge pour PME PACA. <span class="badge badge-green">Opportunité majeure</span> — se référencer comme prestataire.</li>
+<li><strong>CPF 2026</strong> — participation salarié 150 € (vs 100 € avant 2 avril 2026). Budget 500 €/an, plafond 5 000 €. Certif RS6776 la plus mobilisée.</li>
+</ul>
+
+<h3>🏢 Concurrents & tarifs PACA</h3>
+<table>
+<tr><th>Acteur</th><th>Positionnement</th><th>Force</th><th>Faiblesse exploitable</th></tr>
+<tr><td>SavoirIA</td><td>National, maillage PACA (04/05/06/13/83/84)</td><td>Notoriété (TF1), Qualiopi, OPCO/France Travail</td><td>Approche industrialisée, pas incarné</td></tr>
+<tr><td>Tous les Jeudis</td><td>IA gen PACA (Marseille/Nice/Toulon/Aix)</td><td>Format court, intra-entreprise rapide</td><td>Offre générique, peu verticalisée</td></tr>
+<tr><td>CCIAMP (GenIA)</td><td>CCI Marseille Provence</td><td>Légitimité institutionnelle</td><td>Rigidité, pédagogie scolaire</td></tr>
+<tr><td>Alfie Formation</td><td>Marseille + 200 km</td><td>Formateurs +5 ans XP</td><td>Peu différenciant</td></tr>
+<tr><td>PH Formation</td><td>Toulon/Var + Marseille/Aix</td><td>Couverture Var</td><td>Visibilité IA faible</td></tr>
+<tr><td>EIYU</td><td>Marseille, tissu local</td><td>Local PACA marqué</td><td>Jeune, faible notoriété</td></tr>
+<tr><td>Mister-IA</td><td>Marseille, 1–3 jours</td><td>+1200 avis 5/5</td><td>Formats courts uniquement</td></tr>
+<tr><td>Jerome Lecourtier</td><td>Solo Marseille</td><td>Incarnation forte, marketing</td><td>Capacité solo limitée</td></tr>
+</table>
+<p><strong>Tarifs 2026</strong> : 500–1 200 €/jour TJM indépendant confirmé (médiane 700–900 €), hors IdF –15 à –25 % vs Paris. Horaire 50–150 €/h.<br>
+<strong>Positionnement reco</strong> : 700–950 €/jour intra-entreprise en profil senior incarné + remise dégressive volume.</p>
+
+<h3>🎯 Opportunités commerciales</h3>
+<ul>
+<li><strong>19 juin 2026 — MarsAI Festival (1ère édition, Marseille)</strong> — IA générative, conférences + workshops gratuits. Pitch comme speaker/animateur.</li>
+<li><strong>24–25 septembre 2026 — AIM (Artificial Intelligence Marseille)</strong> à l'Orange Vélodrome. Candidater intervenant/exposant maintenant (6 mois avant).</li>
+<li><strong>Meetup "Intelligence Artificielle Aix Marseille"</strong> — s'inscrire, prendre la parole.</li>
+<li><strong>La French Tech Aix Marseille</strong> — annuaire prestataires + agenda "IA & Entreprise".</li>
+<li><strong>Prospects France 2030 "Pionniers IA"</strong> — identifier via Bpifrance/DGE, leur proposer formation pré-dépôt.</li>
+<li><strong>Région Sud "Mon assistant IA"</strong> — candidature prestataire = pipeline quasi-automatique.</li>
+</ul>
+
+<h3>🎓 Formations gratuites & certifications (FR + EN)</h3>
+<h4>Priorité 1 — Crédibilité commerciale</h4>
+<ul>
+<li><strong>Anthropic AI Fluency: Framework and Foundations</strong> — gratuit, certificat (16 certifs Anthropic dispo : API, MCP, Claude Code, AWS Bedrock) · <a href="https://anthropic.skilljar.com/ai-fluency-framework-foundations" target="_blank">Lien</a></li>
+<li><strong>Google AI Essentials</strong> — Coursera gratuit, certificat (6–8h)</li>
+<li><strong>AWS Certified AI Practitioner</strong> — AWS Skill Builder gratuit, examen payant abordable · <a href="https://aws.amazon.com/certification/certified-ai-practitioner/" target="_blank">Lien</a></li>
+<li><strong>Microsoft AI-900 Fundamentals</strong> — Microsoft Learn gratuit, examen 165 $</li>
+</ul>
+<h4>Priorité 2 — Fondations</h4>
+<ul>
+<li><strong>Class'Code IAI</strong> — Inria + FUN MOOC, gratuit, FR</li>
+<li><strong>Objectif IA</strong> — OpenClassrooms + Institut Montaigne, gratuit</li>
+<li><strong>MOOC IA & RH par Unow</strong> — relancé 18 mai 2026, gratuit et certifiant (cible DRH)</li>
+<li><strong>MOOC Cnam "IA générative et moi"</strong> — certificat payant 80 €</li>
+</ul>
+<h4>Priorité 3 — Approfondissement</h4>
+<ul>
+<li><strong>DeepLearning.ai — Generative AI for Everyone</strong> (Andrew Ng) — audit gratuit</li>
+<li><strong>Coursera Machine Learning Specialization</strong> (Stanford/DeepLearning.ai) — financial aid possible</li>
+</ul>
+
+<h3>📜 Réglementation</h3>
+<div class="alert"><strong>AI Act — Application complète 2 août 2026 (J–102)</strong><br>Article 4 (AI literacy) déjà en vigueur depuis février 2025. Autorités nationales vont contrôler dès août 2026. Pic de demande formation prévu mai–juillet 2026. Sanctions : 35 M€/7 % CA (IA interdites), 15 M€/3 % (haut risque), 7,5 M€/1 % (transparence). <strong>Aucun seuil de salariés — toute entreprise utilisant l'IA est concernée.</strong></div>
+<div class="alert alert-orange"><strong>Qualiopi 2026</strong> — Obligatoire dès 1er janvier 2026 pour tout organisme préparant à une certification pro même sans financement public. Nouveaux indicateurs : accompagnement renforcé, prévention risques, lisibilité débouchés. Présence dirigeant obligatoire aux audits. <strong>Goulot d'étranglement n°1 si pas encore Qualiopi.</strong></div>
+
+<hr class="section-sep">
+
+<!-- 6. TERRAINS SELFSTOCK PACA -->
+<h2>🏗️ 6. Terrains Selfstock PACA — annonces vérifiées</h2>
+<p class="section-subtitle">Chaque lien pointe vers l'annonce directe spécifique (vérifié). Annonces avec "loué" exclues.</p>
+
+<div class="cat-header"><h3>🔵 Bouches-du-Rhône (13) — VENTE</h3></div>
+
+<div class="item">
+<div class="item-title">Salon-de-Provence — 4 062 m² · <span class="priority-star">★★★★★</span></div>
+<strong>Adresse</strong> : Boulevard des Ventadouiro, 13300 — ZA de la Gandonne<br>
+<strong>Prix</strong> : 1 312 000 € · <strong>Zone</strong> : ZA Gandonne (PC purgé 1 500 m² activité + 150 m² bureaux)<br>
+<strong>Contact</strong> : Françoise Champain, Agence Étoile<br>
+<a href="https://www.bureauxlocaux.com/annonce/terrain-avec-permis-purge-a-vendre-la-gandonne-sal--39140264" target="_blank">🔗 Annonce directe</a>
 </div>
 
-<!-- =========== TAB : NEWSLETTER IA =========== -->
-<div class="tab-content" data-tab="newsletter">
-  <h2 class="section-title">Newsletter IA — Lundi 20 avril 2026</h2>
-
-  <h3 class="category-title">Gros titres</h3>
-  <div class="card">
-    <div class="item">
-      <div class="item-title">Anthropic lance Claude Opus 4.7 — 1M de contexte, tarification abordable</div>
-      <div class="item-desc">Nouvelle generation de Claude avec fenetre de contexte 1 million de tokens. Capacites agentiques renforcees pour le travail long-format (rapports, bases de code entieres, dossiers juridiques). Prix reste competitif pour une utilisation pro.</div>
-      <a href="https://www.anthropic.com/news/claude-opus-4-7" target="_blank" rel="noopener">Anthropic — Claude Opus 4.7 →</a>
-      <span class="tag tag-purple">Anthropic</span><span class="tag tag-red">Top 1</span>
-    </div>
-    <div class="item">
-      <div class="item-title">PwC : 20% des entreprises captent 75% des gains IA</div>
-      <div class="item-desc">L'etude 2026 AI Performance Study de PwC montre une concentration massive des benefices IA : les organisations "AI-first" creusent l'ecart, notamment via la gouvernance des donnees et la formation interne. Message cle pour les PME PACA : la fenetre d'accrochage se ferme.</div>
-      <a href="https://www.pwc.com/gx/en/news-room/press-releases/2026/pwc-2026-ai-performance-study.html" target="_blank" rel="noopener">PwC — 2026 AI Performance Study →</a>
-      <span class="tag tag-orange">Etude</span>
-    </div>
-    <div class="item">
-      <div class="item-title">Stanford AI Index 2026 : la Chine a quasiment rattrape les US sur l'IA</div>
-      <div class="item-desc">Le rapport annuel Stanford confirme la reduction spectaculaire de l'ecart US-Chine sur la performance des modeles. DeepSeek et les labs publics chinois montent rapidement. Impact strategique pour les geants US et la souverainete europeenne.</div>
-      <a href="https://fortune.com/2026/04/16/stanford-study-how-has-china-gained-on-us-ai-war/" target="_blank" rel="noopener">Fortune — Stanford AI Index 2026 →</a>
-      <span class="tag tag-blue">Geopolitique</span>
-    </div>
-    <div class="item">
-      <div class="item-title">Q1 2026 record : les levees IA explosent, $700 Md$ de capex data centers anticipe</div>
-      <div class="item-desc">Crunchbase confirme un Q1 2026 record pour le financement IA. TechCrunch publie des prevision de $700 Md$ de capex data centers cumule d'ici 2028 entre OpenAI, Oracle, Nvidia, Microsoft, Google, Meta.</div>
-      <a href="https://news.crunchbase.com/venture/record-breaking-funding-ai-global-q1-2026/" target="_blank" rel="noopener">Crunchbase Q1 2026 →</a>
-      <a href="https://techcrunch.com/2026/02/28/billion-dollar-infrastructure-deals-ai-boom-data-centers-openai-oracle-nvidia-microsoft-google-meta/" target="_blank" rel="noopener">TechCrunch — $700B capex →</a>
-      <span class="tag tag-green">Financement</span>
-    </div>
-    <div class="item">
-      <div class="item-title">Revenus OpenAI / Anthropic — l'ARR continue de doubler</div>
-      <div class="item-desc">Les deux labs poursuivent une croissance exponentielle de leur chiffre d'affaires annuel recurrent. Signe que la monetisation IA reelle est la, au-dela des levees. Point d'inflexion pour les strategies enterprise.</div>
-      <span class="tag tag-green">Business IA</span>
-    </div>
-    <div class="item">
-      <div class="item-title">Deal OpenAI x Cerebras — une alternative hardware a Nvidia</div>
-      <div class="item-desc">OpenAI officialise un partenariat d'infrastructure avec Cerebras pour diversifier hors Nvidia. Signal fort pour la fragmentation du marche des accelerateurs IA.</div>
-      <span class="tag tag-orange">Hardware IA</span>
-    </div>
-  </div>
-
-  <h3 class="category-title">Outils & fonctionnalites</h3>
-  <div class="card">
-    <div class="item">
-      <div class="item-title">Claude Opus 4.7 — 1M context, agentic workflows</div>
-      <div class="item-desc">Utile pour analyser des bases documentaires volumineuses, preparer des appels d'offres, ingerer des codebases ou des archives completes. A integrer dans les supports de formation.</div>
-    </div>
-    <div class="item">
-      <div class="item-title">Perplexity Personal Computer — agent systeme</div>
-      <div class="item-desc">Extension du Comet Assistant : Perplexity peut desormais orchestrer des taches locales (installations, manipulation de fichiers, commandes systeme). Concurrent direct de Claude Desktop / ChatGPT Agent.</div>
-    </div>
-    <div class="item">
-      <div class="item-title">Cursor 2.0 — agents orchestrateurs multi-fichiers</div>
-      <div class="item-desc">Nouvelle version de l'IDE AI-native avec meilleure gestion du contexte projet, agents de refactoring long-running. Boost productivite developpeurs.</div>
-    </div>
-    <div class="item">
-      <div class="item-title">Atlassian Remix — IA native Jira/Confluence</div>
-      <div class="item-desc">Atlassian pousse son offre IA "Remix" dans l'ensemble de la suite. Approche integree vs. plugins. Impact fort pour les formations "IA & outils de travail".</div>
-    </div>
-    <div class="item">
-      <div class="item-title">Google Nano Banana Pro / Nano Banana 2</div>
-      <div class="item-desc">Nouvelle generation de modeles image Google, tres competitifs face a Midjourney et Ideogram. A inclure dans les ateliers "design et IA".</div>
-    </div>
-    <div class="item">
-      <div class="item-title">Claude Design — design system integre</div>
-      <div class="item-desc">Nouveaux composants UI/UX officiels publies par Anthropic pour construire des interfaces IA-native. Ressource pour les modules "produit IA".</div>
-    </div>
-    <div class="item">
-      <div class="item-title">MCP (Model Context Protocol) — standard d'interoperabilite</div>
-      <div class="item-desc">Le protocole MCP devient la couche d'interoperabilite entre LLM et outils externes. A enseigner dans les formations "agents IA" et a maitriser pour les prestations de conseil.</div>
-    </div>
-  </div>
-
-  <h3 class="category-title">USE CASES PROFESSIONNELS (cas concrets entreprises)</h3>
-  <div class="card">
-    <div class="item">
-      <div class="item-title">Fortune 100 retailer — IA deployee sur la supply chain</div>
-      <div class="item-desc">Retailer du top 100 deploie l'IA sur sa chaine logistique (prevision demande, optimisation stocks, routing transport). Gains chiffres publiquement. Cas etude a proposer aux formations entreprises de distribution/logistique PACA.</div>
-      <span class="tag tag-green">Retail / Supply chain</span>
-    </div>
-    <div class="item">
-      <div class="item-title">Bancolombia — IA agentique au service client</div>
-      <div class="item-desc">Deploiement d'une couche agentique sur l'ensemble du service client. Reduction significative du temps de traitement et amelioration de la satisfaction. Modele applicable aux banques regionales, assurances, mutuelles.</div>
-      <span class="tag tag-green">Banque / Service</span>
-    </div>
-    <div class="item">
-      <div class="item-title">10 Federal Storage — self-stockage pilote par IA</div>
-      <div class="item-desc">Operateur US self-storage qui applique l'IA au pricing dynamique, au service client 24/7 et a la maintenance predictive. <strong>Source d'inspiration directe pour Selfstock</strong>.</div>
-      <a href="https://www.steelbluebc.com/news-posts/the-ai-evolution-is-here-how-self-storage-is-getting-smarter-and-more-profitable" target="_blank" rel="noopener">SteelBlue — AI & Self-Storage →</a>
-      <span class="tag tag-red">Selfstock</span>
-    </div>
-    <div class="item">
-      <div class="item-title">BHP — donnees + IA dans le mining industriel</div>
-      <div class="item-desc">BHP explique sa strategie "from discovery to decisions" : IA a chaque etape de la chaine miniere, donnees de sub-surface, maintenance predictive. A presenter aux formations "transition IA dans l'industrie lourde".</div>
-      <a href="https://www.bhp.com/news/bhp-insights/2026/03/from-discovery-to-decisions-data-ai-and-the-future-of-mining" target="_blank" rel="noopener">BHP — AI & Mining →</a>
-      <span class="tag tag-green">Mining / Industrie</span>
-    </div>
-    <div class="item">
-      <div class="item-title">Contact centers — operation assistee par IA</div>
-      <div class="item-desc">Generalisation des agents IA qui ecoutent, resument, proposent des scripts, detectent les escalades. Gain moyen : -20 a -35% AHT, +15% FCR. Cible PME PACA 50-500 salaries.</div>
-      <span class="tag tag-green">Service client</span>
-    </div>
-    <div class="item">
-      <div class="item-title">Mining AI — intelligence sub-surface reshape l'industrie</div>
-      <div class="item-desc">Mining.com publie un rapport sur l'IA et l'intelligence sub-surface : prospection, simulation, planning. Les grandes minieres deploient a grande echelle.</div>
-      <a href="https://www.mining.com/ai-and-subsurface-intelligence-reshape-mining" target="_blank" rel="noopener">Mining.com →</a>
-      <span class="tag tag-gray">Mining industriel</span>
-    </div>
-    <div class="item">
-      <div class="item-title">Coaching & accompagnement — les agents IA entrent dans les cabinets</div>
-      <div class="item-desc">Plusieurs cabinets de coaching deploient des assistants IA pour la preparation de sessions, le suivi des clients, la generation de plans d'action. Format hybride "coach humain + agent IA" devient la norme. Cible pour les ateliers PACA.</div>
-      <span class="tag tag-purple">Coaching / Services</span>
-    </div>
-  </div>
-
-  <h3 class="category-title">Applications particuliers</h3>
-  <div class="card">
-    <div class="item">
-      <div class="item-title">Gestion quotidienne et productivite personnelle</div>
-      <div class="item-desc">Claude, ChatGPT et Perplexity Personal remplacent progressivement les taches de planification, organisation, redaction courante. Moyenne du temps gagne : 3-5h/semaine.</div>
-    </div>
-    <div class="item">
-      <div class="item-title">Education et apprentissage</div>
-      <div class="item-desc">Les assistants IA sont utilises comme tuteurs personnels, aide aux devoirs et preparation aux examens. Adoption massive chez les 18-34 ans.</div>
-    </div>
-    <div class="item">
-      <div class="item-title">Sante et bien-etre</div>
-      <div class="item-desc">Chatbots pour preparation RDV medicaux, comprehension ordonnances, suivi symptomes. Attention : ne remplace pas le diagnostic medical.</div>
-    </div>
-    <div class="item">
-      <div class="item-title">Creation de contenu et media</div>
-      <div class="item-desc">Nano Banana Pro, Midjourney, Sora, Runway : la creation image/video est desormais possible en quelques minutes avec une qualite professionnelle.</div>
-    </div>
-  </div>
-
-  <h3 class="category-title">Asie</h3>
-  <div class="card">
-    <div class="item">
-      <div class="item-title">Japon : SoftBank, NEC, Sony, Honda forment une nouvelle alliance IA nationale</div>
-      <div class="item-desc">Le Japon lance une "national AI push" pour concurrencer US et Chine. Nouvelle entite commune SoftBank/Sony/Honda, avec couverture NEC sur la brique infrastructure. Signal fort sur la souverainete IA asiatique.</div>
-      <a href="https://www.visiontimes.com/2026/04/13/japan-launches-national-ai-push-as-softbank-sony-honda-form-new-firm-to-rival-us-china.html" target="_blank" rel="noopener">Vision Times — Japon alliance IA →</a>
-      <span class="tag tag-orange">Japon</span>
-    </div>
-    <div class="item">
-      <div class="item-title">DeepSeek V4 — perf au niveau Opus 4.5 pour une fraction du cout</div>
-      <div class="item-desc">DeepSeek continue d'ecraser les benchmarks rapport cout/performance. Tres forte adoption en Asie du SE et au Moyen-Orient. Pose la question strategique pour les entreprises europeennes : souverainete vs. cout.</div>
-      <span class="tag tag-orange">Chine</span>
-    </div>
-    <div class="item">
-      <div class="item-title">Microsoft investit massivement en Inde sur l'IA</div>
-      <div class="item-desc">Nouveaux data centers, partenariats avec Reliance, formation de millions d'Indiens aux outils IA. Inde positionnee en hub talent IA mondial.</div>
-      <span class="tag tag-blue">Inde</span>
-    </div>
-  </div>
-
-  <h3 class="category-title">Ce que ca change pour un entrepreneur</h3>
-  <div class="card">
-    <div class="item">
-      <div class="item-title">1. La fenetre d'accrochage IA PME se ferme</div>
-      <div class="item-desc">PwC : 20% capturent 75% des gains. Le positionnement formateur qui accelere l'adoption interne devient decisif avant fin 2026.</div>
-    </div>
-    <div class="item">
-      <div class="item-title">2. La conformite AI Act devient un produit d'appel majeur</div>
-      <div class="item-desc">H-104 jours avant les sanctions. Le pack "AI Act Starter 2h" cible 90% du marche PME, avec un ticket d'entree bas et une porte vers des modules plus avances.</div>
-    </div>
-    <div class="item">
-      <div class="item-title">3. Les agents IA changent la structure de couts des operations</div>
-      <div class="item-desc">Contact centers, coaching, service client : -20 a -35% de temps de traitement. Pour Anthony, c'est un argumentaire ROI tres concret a inclure dans tous les devis.</div>
-    </div>
-    <div class="item">
-      <div class="item-title">4. La souverainete technologique devient un argument commercial</div>
-      <div class="item-desc">Stanford AI Index, EU Data Act, alliance Japon : le contexte favorise les prestataires europeens qui savent parler souverainete. Atout pour Space Data comme pour la Formation IA.</div>
-    </div>
-    <div class="item">
-      <div class="item-title">5. Les deals mining -> HPC creent une niche de conseil</div>
-      <div class="item-desc">70% des revenus miners cotes viendront de l'IA fin 2026. Anthony peut se positionner comme tete de pont sur les PME francaises energie/mining qui veulent explorer cette bascule.</div>
-    </div>
-  </div>
+<div class="item">
+<div class="item-title">Le Rove — 3 000 m² · <span class="priority-star">★★★★★</span></div>
+<strong>Adresse</strong> : ZI Les Pielettes, 13740<br>
+<strong>Prix</strong> : 1 200 000 € · <strong>Zone</strong> : ZI pure (PC validé 600 m², accès semi-remorques)<br>
+<strong>Contact</strong> : EOL, 83 Bd de l'Europe 13127 Vitrolles (réf BL2jqjm1GL)<br>
+<a href="https://www.bureauxlocaux.com/annonce/zi-les-pielettes--40126956" target="_blank">🔗 Annonce directe</a>
 </div>
 
-<!-- =========== TAB : VIDEOS =========== -->
-<div class="tab-content" data-tab="videos">
-  <h2 class="section-title">Videos & Podcasts — 20 avril 2026</h2>
-
-  <h3 class="category-title">US / International</h3>
-  <div class="card">
-    <div class="item">
-      <div class="item-title">Lex Fridman #490 — State of AI 2026</div>
-      <div class="item-desc">Panorama complet de l'IA en 2026 : modeles, applications, geopolitique, timelines AGI. Incontournable, 4h de contenu dense.</div>
-      <a href="https://www.youtube.com/watch?v=EV7WhVT270Q" target="_blank" rel="noopener">YouTube — Lex Fridman #490 →</a>
-      <span class="tag tag-purple">Podcast US</span>
-    </div>
-    <div class="item">
-      <div class="item-title">Anthropic — Claude Opus 4.7 launch & deep dive</div>
-      <div class="item-desc">Presentation officielle du modele : architecture, benchmarks, cas d'usage "long-context agents".</div>
-      <a href="https://www.anthropic.com/news/claude-opus-4-7" target="_blank" rel="noopener">Anthropic News →</a>
-      <span class="tag tag-purple">Officiel</span>
-    </div>
-    <div class="item">
-      <div class="item-title">Stanford AI Index 2026 — presentation</div>
-      <div class="item-desc">Le rapport annuel et ses takeaways, narrates par les auteurs. Pour comprendre l'ecart US/Chine, la dynamique investissement, la carte mondiale des labs.</div>
-      <a href="https://fortune.com/2026/04/16/stanford-study-how-has-china-gained-on-us-ai-war/" target="_blank" rel="noopener">Fortune coverage →</a>
-      <span class="tag tag-blue">Recherche</span>
-    </div>
-  </div>
-
-  <h3 class="category-title">Asie</h3>
-  <div class="card">
-    <div class="item">
-      <div class="item-title">Vision Times — Japon alliance SoftBank / Sony / Honda</div>
-      <div class="item-desc">Article video sur la nouvelle entite IA japonaise et son positionnement face a US/Chine.</div>
-      <a href="https://www.visiontimes.com/2026/04/13/japan-launches-national-ai-push-as-softbank-sony-honda-form-new-firm-to-rival-us-china.html" target="_blank" rel="noopener">Vision Times →</a>
-      <span class="tag tag-orange">Japon</span>
-    </div>
-    <div class="item">
-      <div class="item-title">DeepSeek V4 — analyses comparatives</div>
-      <div class="item-desc">Plusieurs videos comparatives YouTube de DeepSeek V4 vs. Opus 4.6, Claude 4.7, GPT-5. Points cles : performance proche pour ~1/10 du cout API.</div>
-      <span class="tag tag-orange">Chine</span>
-    </div>
-  </div>
-
-  <h3 class="category-title">France</h3>
-  <div class="card">
-    <div class="item">
-      <div class="item-title">Bloomberg — AI pivot pushes Bitcoin miners toward a 70% revenue milestone</div>
-      <div class="item-desc">Reportage sur la bascule industrielle des mineurs cotes vers l'IA. Citations CoinShares, MARA, Core Scientific, TeraWulf.</div>
-      <a href="https://www.bloomberg.com/news/articles/2026-04-15/ai-pivot-pushes-bitcoin-miners-toward-a-70-revenue-milestone" target="_blank" rel="noopener">Bloomberg →</a>
-      <span class="tag tag-green">Mining / IA</span>
-    </div>
-    <div class="item">
-      <div class="item-title">CoinDesk — Anthropic multi-gigawatt compute deal</div>
-      <div class="item-desc">Reportage sur le deal multi-GW d'Anthropic, ses implications energetiques et sa rivalite directe avec les mineurs pour la cheap power.</div>
-      <a href="https://www.coindesk.com/tech/2026/04/07/bitcoin-miners-face-a-new-rival-for-cheap-power-as-anthropic-signs-multi-gigawatt-compute-deal" target="_blank" rel="noopener">CoinDesk →</a>
-      <span class="tag tag-blue">Infra IA</span>
-    </div>
-  </div>
+<div class="item">
+<div class="item-title">Fos-sur-Mer — 6 870 m² · <span class="priority-star">★★★★★</span></div>
+<strong>Adresse</strong> : 13270 Fos-sur-Mer<br>
+<strong>Prix</strong> : 620 600 € (+7 % honoraires acq.) ≈ 90 €/m² · <strong>Zone</strong> : activités artisanales/industrielles/services (transporteurs refusés)<br>
+<strong>Contact</strong> : Baux Locaux, 477 av. Jules Verne 84700 Sorgues (réf 13_1354_BL)<br>
+<a href="https://www.bureauxlocaux.com/annonce/terrain-a-vendre--38860397" target="_blank">🔗 Annonce directe</a>
 </div>
 
-<!-- =========== TAB : CRYPTO / MINING =========== -->
-<div class="tab-content" data-tab="crypto">
-  <h2 class="section-title">Mining / Crypto — Lundi 20 avril 2026</h2>
-
-  <div class="kpi-grid">
-    <div class="kpi">
-      <div class="label">Bitcoin (BTC)</div>
-      <div class="value" style="color:#f7931a;">~$75 000</div>
-      <div class="change down">-19% YTD</div>
-    </div>
-    <div class="kpi">
-      <div class="label">Ethereum (ETH)</div>
-      <div class="value" style="color:#627eea;">~$2 450</div>
-      <div class="change down">-27% YTD</div>
-    </div>
-    <div class="kpi">
-      <div class="label">GEODNET (GEOD)</div>
-      <div class="value" style="color:#4ade80;">~$0,13</div>
-      <div class="change neutral">~$54M cap</div>
-    </div>
-    <div class="kpi">
-      <div class="label">Cout production BTC</div>
-      <div class="value">~77 k$</div>
-      <div class="change neutral">cash cost moyen</div>
-    </div>
-    <div class="kpi">
-      <div class="label">Hashrate difficulty</div>
-      <div class="value">135,59 T</div>
-      <div class="change down">-2,43% (17/04)</div>
-    </div>
-    <div class="kpi">
-      <div class="label">Fear & Greed</div>
-      <div class="value" style="color:#e94560;">27</div>
-      <div class="change neutral">Peur, -3 sem</div>
-    </div>
-  </div>
-
-  <div class="chart-container">
-    <canvas id="cryptoChart20"></canvas>
-  </div>
-
-  <h3 class="category-title">Marche</h3>
-  <div class="card">
-    <div class="item">
-      <div class="item-title">BTC teste 3e fois le niveau psychologique des 75 000 $</div>
-      <div class="item-desc">Supports a 73 500 $ et 71 200 $. Resistances a 76 800 $ et 80 000 $. Scenario le plus probable sur la semaine : range 75K-77K.</div>
-      <a href="https://phemex.com/blogs/bitcoin-vs-ethereum-april-2026-data-analysis" target="_blank" rel="noopener">Phemex — BTC vs ETH avril 2026 →</a>
-      <span class="tag tag-orange">BTC</span>
-    </div>
-    <div class="item">
-      <div class="item-title">ETH bute sur son EMA 100 autour de 2 400-2 500 $</div>
-      <div class="item-desc">Recuperation lente depuis les bas de fevrier. Pas de catalyseur majeur a l'horizon immediat.</div>
-      <span class="tag tag-purple">ETH</span>
-    </div>
-    <div class="item">
-      <div class="item-title">Sentiment : Fear & Greed Index a 27 (peur), plus bas en 3 semaines</div>
-      <div class="item-desc">BTC -19% YTD, ETH -27% YTD. Environnement de marche a risque jusqu'a publication "Reg Crypto" SEC.</div>
-      <a href="https://blockchainmagazine.net/crypto-market-today-2026-04-19/" target="_blank" rel="noopener">BlockchainMagazine — Marche 19 avril →</a>
-      <span class="tag tag-red">Sentiment baissier</span>
-    </div>
-  </div>
-
-  <h3 class="category-title">Mining</h3>
-  <div class="card">
-    <div class="item">
-      <div class="item-title">Difficulte reseau : -2,43% le 17 avril, plus forte chute recente</div>
-      <div class="item-desc">Difficulte a 135,59 T. Hashprice +13,65% en reaction — bouffee d'oxygene pour les operateurs encore debranches.</div>
-      <a href="https://cryptonews.net/news/mining/32730269/" target="_blank" rel="noopener">CryptoNews — Difficulty & Hashprice →</a>
-      <span class="tag tag-green">Signal positif</span>
-    </div>
-    <div class="item">
-      <div class="item-title">Rentabilite : seuls les miners a <0,03 $/kWh restent cash-positive</div>
-      <div class="item-desc">Cash cost ~77 k$/BTC, cout complet >100 k$ pour beaucoup de cotes US. Capitulation Q1 2026 : les miners a >0,05 $/kWh ont massivement debranche.</div>
-      <a href="https://nhash.net/blogs/news/bitcoin-mining-report-q1-2026" target="_blank" rel="noopener">NHASH — Bitcoin Mining Report Q1 2026 →</a>
-      <span class="tag tag-red">Capitulation</span>
-    </div>
-    <div class="item">
-      <div class="item-title">Hardware : Bitdeer SEALMINER A4 Ultra Hydro — 9,45 J/TH (record mondial)</div>
-      <div class="item-desc">Contre 12,5 J/TH pour l'A3 et ~20 J/TH pour le S19 Pro. BitFuFu propose l'Antminer S21 XP heberge a 9,5 $/T avec hosting a 0,068 $/kWh. <strong>Renouvellement de parc obligatoire pour rester competitif.</strong></div>
-      <a href="https://www.globenewswire.com/news-release/2026/04/07/3269133/0/en/Bitdeer-Launches-SEALMINER-A4-Series-Bitcoin-Mining-Rigs-Achieves-a-Power-Efficiency-of-9-45-J-TH.html" target="_blank" rel="noopener">Bitdeer — SEALMINER A4 →</a>
-      <span class="tag tag-green">Hardware</span>
-    </div>
-    <div class="item">
-      <div class="item-title">Consolidation : NYDIG en negociations pour racheter le site Alcoa a Massena, NY</div>
-      <div class="item-desc">1 300 acres, hydroelectricite. Signal de consolidation industrielle US. Le pattern : fondeurs en difficulte -> sites repris par mineurs / HPC.</div>
-      <a href="https://coinalertnews.com/news/2026/04/19/nydig-alcoa-smelter-bitcoin-mining" target="_blank" rel="noopener">CoinAlertNews — NYDIG/Alcoa →</a>
-      <span class="tag tag-blue">M&A</span>
-    </div>
-    <div class="item">
-      <div class="item-title">Production : les miners publics ont vendu plus de BTC au Q1 2026 que sur toute 2025</div>
-      <div class="item-desc">Revenu journalier divise par 2 depuis le halving 2024 (900 -> 437 BTC/jour). Pression de vente structurelle.</div>
-      <span class="tag tag-red">Pression de vente</span>
-    </div>
-  </div>
-
-  <h3 class="category-title">Regulation</h3>
-  <div class="card">
-    <div class="item">
-      <div class="item-title">🔥 SEC "Reg Crypto" (Paul Atkins) — publication imminente</div>
-      <div class="item-desc">La proposition est a la Maison-Blanche (OIRA). Elle clarifie les exemptions startups et levees de fonds. Potentiel catalyseur marche a court terme.</div>
-      <a href="https://www.coindesk.com/policy/2026/04/07/sec-close-to-putting-out-reg-crypto-for-fundraising-questions-chair-atkins-says" target="_blank" rel="noopener">CoinDesk — SEC Reg Crypto →</a>
-      <span class="tag tag-red">Imminent</span>
-    </div>
-    <div class="item">
-      <div class="item-title">Treasury / GENIUS Act — "similarite substantielle" pour stablecoins &lt;10 Md$</div>
-      <div class="item-desc">Reglement propose le 1er avril permettant aux emetteurs de stablecoins &lt;10 Md$ d'opter pour la regulation etatique si "substantiellement similaire".</div>
-      <span class="tag tag-orange">Stablecoins</span>
-    </div>
-    <div class="item">
-      <div class="item-title">OCC — regle finale en vigueur le 1er avril : les banques US peuvent custodier des actifs numeriques</div>
-      <div class="item-desc">Enjeu majeur pour l'institutionnalisation du BTC aux Etats-Unis.</div>
-      <span class="tag tag-green">Regulation positive</span>
-    </div>
-    <div class="item">
-      <div class="item-title">PARITY Act — reintroduit par Horsford (D) et Miller (R)</div>
-      <div class="item-desc">Modernisation de la fiscalite crypto US. Soutien bipartisan.</div>
-      <a href="https://www.coindesk.com/policy/2026/04/13/u-s-lawmakers-take-another-swing-at-crypto-tax-policy-with-revised-bill" target="_blank" rel="noopener">CoinDesk — PARITY Act →</a>
-      <span class="tag tag-blue">Fiscalite US</span>
-    </div>
-    <div class="item">
-      <div class="item-title">Australie : premier cadre reglementaire complet — Corporations Amendment (Digital Assets Framework)</div>
-      <div class="item-desc">Le Parlement australien adopte un cadre complet couvrant exchanges, custody et stablecoins.</div>
-      <span class="tag tag-blue">Australie</span>
-    </div>
-  </div>
-
-  <h3 class="category-title">IA x Mining</h3>
-  <div class="card">
-    <div class="item">
-      <div class="item-title">CoinShares : 70% des revenus miners cotes viendront de l'IA fin 2026</div>
-      <div class="item-desc">Bascule historique. Bloomberg confirme. MARA, Core Scientific, TeraWulf vendent leur BTC pour financer leur reconversion.</div>
-      <a href="https://www.bloomberg.com/news/articles/2026-04-15/ai-pivot-pushes-bitcoin-miners-toward-a-70-revenue-milestone" target="_blank" rel="noopener">Bloomberg →</a>
-      <span class="tag tag-red">Bascule structurelle</span>
-    </div>
-    <div class="item">
-      <div class="item-title">Anthropic signe un deal multi-gigawatt — nouveau rival des miners</div>
-      <div class="item-desc">Concurrence energie IA x mining s'intensifie. "Cheap power" est le nouveau champ de bataille.</div>
-      <a href="https://www.coindesk.com/tech/2026/04/07/bitcoin-miners-face-a-new-rival-for-cheap-power-as-anthropic-signs-multi-gigawatt-compute-deal" target="_blank" rel="noopener">CoinDesk →</a>
-      <span class="tag tag-orange">Concurrence energie</span>
-    </div>
-    <div class="item">
-      <div class="item-title">Optimisation on-site : IA pour predire disponibilite energie verte</div>
-      <div class="item-desc">Fermes de mining integrant IA pour anticiper solaire/eolien/hydro et ajuster les cycles de hash. Premier cas d'usage IA dans le mining traditionnel.</div>
-      <span class="tag tag-green">Tendance</span>
-    </div>
-    <div class="item">
-      <div class="item-title">Qubic — architecture hybride ASIC Dogecoin + CPU/GPU IA</div>
-      <div class="item-desc">Lancement le 1er avril : mineurs hybrides qui basculent entre Dogecoin et entrainement IA selon la rentabilite.</div>
-      <a href="https://qubic.org/blog-detail/qubic-dogecoin-mining-transition-plan-april-2026" target="_blank" rel="noopener">Qubic — Dogecoin Mining →</a>
-      <span class="tag tag-purple">Hybride</span>
-    </div>
-  </div>
-
-  <h3 class="category-title">GEODNET / DePIN</h3>
-  <div class="card">
-    <div class="item">
-      <div class="item-title">GEODNET x DroneDash — GEODASH Aerosystems (15 avril)</div>
-      <div class="item-desc">JV drone agricole RTK-AI map-free. Commercial T3 2026. Voir analyse complete onglet Space Data.</div>
-      <a href="https://www.roboticstomorrow.com/news/2026/04/15/dronedash-and-geodnet-launch-geodash-aerosystems-to-bring-map-free-ai-driven-precision-spraying-to-industrial-agriculture/26422/" target="_blank" rel="noopener">RoboticsTomorrow →</a>
-      <span class="tag tag-orange">GEODNET</span>
-    </div>
-    <div class="item">
-      <div class="item-title">Prix GEOD : ~$0,13, cap ~$54M — range serre</div>
-      <div class="item-desc">Token reste sous pression. Volume 24h faible. Opportunite pour Space Data de se positionner en alternative FR avec remuneration en euros (vs. tokens GEOD).</div>
-      <span class="tag tag-gray">Prix token</span>
-    </div>
-    <div class="item">
-      <div class="item-title">WeatherXM — 9 600+ stations, 98 pays</div>
-      <div class="item-desc">DePIN meteo. 1,5M+ station-days. Modele de reference pour la monetisation "hote" en crypto.</div>
-      <a href="https://weatherxm.com/" target="_blank" rel="noopener">WeatherXM →</a>
-      <span class="tag tag-purple">DePIN</span>
-    </div>
-  </div>
-
-  <div class="quote">Chiffre du jour — <strong>9,45 J/TH</strong>. Nouveau record mondial d'efficacite energetique pour un ASIC Bitcoin (Bitdeer SEALMINER A4 Ultra Hydro). Contre ~20 J/TH pour la generation S19 Pro. Pour un operateur a 0,05 $/kWh, cout marginal de production divise par deux en trois ans — a condition de renouveler le parc.</div>
+<div class="item">
+<div class="item-title">Arles — 5 564 m²</div>
+<strong>Adresse</strong> : Route de Gimeaux, Arles · <strong>Zone</strong> : UE (artisanat/industrie/logistique)<br>
+<strong>Prix</strong> : 583 000 € (≈105 €/m²)<br>
+<a href="https://www.bureauxlocaux.com/annonce/terrain-en-zone-ue-a-vendre--39913107" target="_blank">🔗 Annonce directe</a>
 </div>
 
-<!-- =========== TAB : FORMATION IA =========== -->
-<div class="tab-content" data-tab="formation">
-  <h2 class="section-title">Formation IA — guider Anthony — 20 avril 2026</h2>
-
-  <h3 class="category-title">Aides & financements</h3>
-  <div class="card">
-    <div class="item">
-      <div class="item-title">⚠️ Reforme CPF en vigueur au 2 avril 2026 — 150 € reste a charge + plafond 1 500 €</div>
-      <div class="item-desc">Impact direct : les prospects salaries vont hesiter a payer leur quote-part. <strong>Argumentaire "ROI formation" a preparer.</strong> Tous les devis CPF doivent integrer cette nouvelle donne.</div>
-      <a href="https://www.data-bird.co/blog/reforme-cpf-2026" target="_blank" rel="noopener">Reforme CPF 2026 →</a>
-      <span class="tag tag-red">Impact commercial</span>
-    </div>
-    <div class="item">
-      <div class="item-title">FNE-Formation : toujours suspendu — alternative FSE+ via OPCO</div>
-      <div class="item-desc">Le dispositif n'est pas reconduit en 2026. Le Fonds Social Europeen Plus est a mobiliser via les OPCO. <strong>A maitriser pour tes devis entreprises.</strong></div>
-      <a href="https://www.unow.fr/blog/actualites/fne-formation-et-fse-ce-qu-il-faut-savoir-en-2025-pour-financer-vos-formations/" target="_blank" rel="noopener">Unow — FNE / FSE+ →</a>
-      <span class="tag tag-orange">Financement</span>
-    </div>
-    <div class="item">
-      <div class="item-title">OPCO — l'IA reste une priorite sectorielle</div>
-      <div class="item-desc">PME &lt;50 salaries : jusqu'a 100% de prise en charge du cout pedagogique. 50-300 salaries : 30-70% selon OPCO. Les plus actifs sur l'IA en PACA : <strong>Atlas (numerique/conseil), OPCO 2i (industrie), Akto</strong>. Condition imperative : certification Qualiopi.</div>
-      <a href="https://www.the-intelligence-academy.com/blog/formation-ia-opco-financement" target="_blank" rel="noopener">Guide Formation IA OPCO 2026 →</a>
-      <span class="tag tag-green">Levier commercial</span>
-    </div>
-    <div class="item">
-      <div class="item-title">🎯 Region Sud — "Mon Assistant IA" finance a 100%</div>
-      <div class="item-desc">Prestation conseil financee a 100% pour integrer l'IA en PME. <strong>Porte d'entree commerciale</strong> : Anthony peut se positionner en prestataire aval apres la mission de diagnostic. Les PME diagnostiquees cherchent ensuite a former.</div>
-      <a href="https://www.maregionsud.fr/vos-aides/detail/mon-assistant-ia" target="_blank" rel="noopener">Mon Assistant IA →</a>
-      <a href="https://www.maregionsud.fr/ma-region/nos-engagements/region-sud-terre-dia" target="_blank" rel="noopener">Region Sud Terre d'IA →</a>
-      <span class="tag tag-green">Partenariat</span>
-    </div>
-    <div class="item">
-      <div class="item-title">Plan SUD IA — 70 M€ sur 5 ans</div>
-      <div class="item-desc">Ecosysteme formation inclus. Programme Terra Numerica : 400 evenements, 15 000 eleves, 1 000 pros, 30 000 citoyens a sensibiliser.</div>
-      <span class="tag tag-blue">Region Sud</span>
-    </div>
-    <div class="item">
-      <div class="item-title">France 2030 — "Pionniers de l'IA" — echeance 9 juin 2026</div>
-      <div class="item-desc">AAP Bpifrance. Pas une aide formation directe, mais les laureats deviennent des prospects chauds (Phase 2 demonstrateur 400-800 k€, Phase 3 industrialisation 3-8 M€). Secteurs : industrie, energie, cyber, sante, transition ecologique.</div>
-      <a href="https://www.bpifrance.fr/nos-appels-a-projets-concours/appel-a-projets-des-pionniers-de-lintelligence-artificielle" target="_blank" rel="noopener">Bpifrance — Pionniers de l'IA →</a>
-      <span class="tag tag-orange">Prospection</span>
-    </div>
-    <div class="item">
-      <div class="item-title">AMI PIIEC IA — cloture 30 janvier 2026 (mais candidats = cibles)</div>
-      <div class="item-desc">Les acteurs ayant candidate sont reperables via DGE. Liste a reconstituer comme cibles prospection formation.</div>
-      <a href="https://paca.dreets.gouv.fr/Intelligence-artificielle-le-Gouvernement-lance-un-appel-a-manifestation-d" target="_blank" rel="noopener">AMI PIIEC IA DREETS PACA →</a>
-      <span class="tag tag-gray">Cibles</span>
-    </div>
-  </div>
-
-  <h3 class="category-title">Concurrents & tarifs PACA</h3>
-  <div class="card">
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th>Concurrent</th>
-            <th>Zone</th>
-            <th>Positionnement</th>
-            <th>Force</th>
-            <th>Faiblesse</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr><td>SavoirIA</td><td>Marseille → Gap</td><td>Entreprise, experts certifies</td><td>Passage TF1, Qualiopi</td><td>Prix probablement eleves</td></tr>
-          <tr><td>EIYU</td><td>Marseille</td><td>Tissu local (logistique, maritime, sante Aix)</td><td>Specialisation sectorielle</td><td>Notoriete hors 13 limitee</td></tr>
-          <tr><td>Tous les Jeudis</td><td>PACA</td><td>Presentiel / distanciel / hybride</td><td>Flexibilite</td><td>Marque moins ancree</td></tr>
-          <tr><td>Alfie Formation</td><td>Marseille + Aix/Toulon/Aubagne</td><td>Formateurs 5 ans XP min</td><td>Mobilite regionale</td><td>Site generique</td></tr>
-          <tr><td>Mister IA</td><td>Marseille/Aix/Toulon</td><td>Sessions 1-3 jours, Qualiopi</td><td>1292 avis 5/5</td><td>Modele industriel</td></tr>
-          <tr><td>PH Formation</td><td>Six-Fours + Var/13</td><td>Solo, 20 ans XP</td><td>Ancrage Var</td><td>Pas specialise IA pure</td></tr>
-          <tr><td>CCI Aix-Marseille</td><td>Aix-Marseille</td><td>Module GenIA applications metiers</td><td>Reseau entreprises</td><td>Lourdeur, peu agile</td></tr>
-        </tbody>
-      </table>
-    </div>
-    <div class="item">
-      <div class="item-desc"><strong>Lecture concurrentielle</strong> : le marche PACA est sature cote generalistes. Les differenciations gagnantes sont (a) la verticalisation sectorielle — Mister IA et EIYU l'ont deja prise — et (b) la preuve sociale (avis, references nommees). <br><br><strong>Angles differenciants a creuser pour Anthony</strong> : un secteur dans lequel tu as un historique personnel (mining, industrie energie), l'accompagnement post-formation (qui manque chez tous), ou un format hybride "audit-formation-deploiement".</div>
-      <div class="footnote">Aucun tarif precis publie en 2026 — travail sur devis generalise. Enquete mysterieuse recommandee cette semaine pour recuperer leurs grilles.</div>
-    </div>
-  </div>
-
-  <h3 class="category-title">Opportunites commerciales</h3>
-  <div class="card">
-    <div class="item">
-      <div class="item-title">🎯 MarsAI Festival — 19 juin 2026, Marseille</div>
-      <div class="item-desc">Premier festival IA + audiovisuel de Marseille. Public : creatifs, comms, agences. <strong>Action : s'inscrire, prevoir cartes de visite, reserver une heure au moins pour reseauter.</strong></div>
-      <a href="https://lafrenchtech-aixmarseille.fr/agenda/festival-marsai/" target="_blank" rel="noopener">Festival MarsAI →</a>
-      <span class="tag tag-red">Agenda prio</span>
-    </div>
-    <div class="item">
-      <div class="item-title">🎯 Village Startup Delta Festival — 23-26 juillet 2026, Prado Marseille</div>
-      <div class="item-desc">100 startups FR/internationales. Dirigeants, VCs. <strong>Cible concrete : les 30 etudiants-entrepreneurs Pepite — formation initiale a budget modeste mais volume.</strong></div>
-      <a href="https://lafrenchtech-aixmarseille.fr/agenda/village-startup-delta-festival/" target="_blank" rel="noopener">Village Startup Delta →</a>
-      <span class="tag tag-red">Agenda prio</span>
-    </div>
-    <div class="item">
-      <div class="item-title">Agenda complet French Tech Aix-Marseille (a suivre hebdo)</div>
-      <div class="item-desc">Le local PACA (Meetup IA Aix-Marseille, MASSIL.IA, CCIAMP) publie les dates precises a J-10. Consultation hebdomadaire.</div>
-      <a href="https://lafrenchtech-aixmarseille.fr/agendas/" target="_blank" rel="noopener">French Tech Aix Marseille →</a>
-      <span class="tag tag-blue">Veille</span>
-    </div>
-    <div class="item">
-      <div class="item-title">Cibles prospection "chaudes"</div>
-      <div class="item-desc">Entreprises ayant repondu a l'AMI PIIEC IA (liste via DGE). Candidats AAP "Pionniers de l'IA" (positionnement aval formation equipes). Beneficiaires "Mon Assistant IA" Region Sud (plan d'action IA deja valide -> formation etape suivante).</div>
-      <span class="tag tag-green">Prospection</span>
-    </div>
-    <div class="item">
-      <div class="item-title">Partenariats a initier</div>
-      <div class="item-desc">La French Tech Aix-Marseille : proposer un atelier gratuit sur l'obligation de formation AI Act (notoriete). CCI Aix-Marseille : se positionner comme formateur externe sur leur module GenIA.</div>
-      <span class="tag tag-orange">Partenariats</span>
-    </div>
-  </div>
-
-  <h3 class="category-title">Formations gratuites & certifications (FR + EN)</h3>
-  <div class="card">
-    <div class="subcat-title">Priorite haute (diff. commercial + credibilite)</div>
-    <div class="item">
-      <div class="item-title">Claude Certified Architect, Foundations (Anthropic)</div>
-      <div class="item-desc">60 QCM, 120 min, 99 $. Couvre architecture agentique, Claude Code, prompt engineering, tool integration, context management. <strong>Differenciation enorme en France</strong> — quasi aucun formateur certifie.</div>
-      <a href="https://anthropic.skilljar.com/" target="_blank" rel="noopener">Anthropic Academy →</a>
-      <a href="https://zenvanriel.com/ai-engineer-blog/claude-certified-architect-anthropic-certification-guide/" target="_blank" rel="noopener">Guide certification →</a>
-      <span class="tag tag-red">Prio 1</span>
-    </div>
-    <div class="item">
-      <div class="item-title">Anthropic Academy (Skilljar) — gratuit</div>
-      <div class="item-desc">Ressources gratuites Anthropic, a consommer en amont de la certification.</div>
-      <span class="tag tag-green">Gratuit</span>
-    </div>
-
-    <div class="subcat-title">Certifications cloud (ecosysteme MS / Google)</div>
-    <div class="item">
-      <div class="item-title">Microsoft AI-900 — Azure AI Fundamentals</div>
-      <div class="item-desc">76 € en France. Modules Microsoft Learn gratuits (~10h). <strong>Utile pour prospects en ecosysteme Microsoft.</strong></div>
-      <span class="tag tag-blue">Microsoft</span>
-    </div>
-    <div class="item">
-      <div class="item-title">Google AI Essentials (Coursera)</div>
-      <div class="item-desc">~46 € via abonnement mensuel, aides Coursera possibles.</div>
-      <span class="tag tag-blue">Google</span>
-    </div>
-    <div class="item">
-      <div class="item-title">Google Skills — plateforme gratuite massive</div>
-      <div class="item-desc">Recemment deployee, milliers de contenus ML/API/cloud.</div>
-      <a href="https://www.skills.google/" target="_blank" rel="noopener">Google Skills →</a>
-      <span class="tag tag-green">Gratuit</span>
-    </div>
-
-    <div class="subcat-title">Fondamentaux & culture IA (FR, gratuit)</div>
-    <div class="item">
-      <div class="item-title">Elements of AI — 1M+ apprenants, credibilite europeenne</div>
-      <div class="item-desc">Univ. Helsinki + Sorbonne, partenariat Commission Europeenne.</div>
-      <a href="https://www.elementsofai.com/" target="_blank" rel="noopener">Elements of AI →</a>
-      <span class="tag tag-green">FR/EN gratuit</span>
-    </div>
-    <div class="item">
-      <div class="item-title">Class'Code IAI / FUN-MOOC</div>
-      <div class="item-desc">IA citoyenne. Utile pour les modules grand public / PME d'Anthony.</div>
-      <a href="https://www.fun-mooc.fr/en/courses/lintelligence-artificielle-avec-intelligence/" target="_blank" rel="noopener">FUN-MOOC Class'Code →</a>
-      <span class="tag tag-green">Gratuit</span>
-    </div>
-    <div class="item">
-      <div class="item-title">MOOC IA & Societe — FUN MOOC</div>
-      <div class="item-desc">Session 9 mars → 26 avril 2026 (en cours). Prochaine session a surveiller.</div>
-      <a href="https://www.fun-mooc.fr/en/cours/intelligence-artificielle-et-societe/" target="_blank" rel="noopener">MOOC IA & Societe →</a>
-      <span class="tag tag-green">Gratuit</span>
-    </div>
-    <div class="item">
-      <div class="item-title">Objectif IA (Institut Montaigne x OpenClassrooms) et MOOC "IA pour et par les enseignants" (Inria)</div>
-      <div class="item-desc">A rajouter si tu vises le public education/CFA.</div>
-      <span class="tag tag-green">Gratuit</span>
-    </div>
-
-    <div class="subcat-title">Anglophone (signaux de marche)</div>
-    <div class="item">
-      <div class="item-title">OpenAI Academy / IBM SkillsBuild (badges Credly) / Great Learning Academy</div>
-      <div class="item-desc">Catalogues IA larges anglophones. IBM Credly = badges utiles pour signaler montee en competence.</div>
-      <a href="https://www.techrepublic.com/article/news-free-low-cost-ai-certifications-2026/" target="_blank" rel="noopener">TechRepublic — Free AI Certifications 2026 →</a>
-      <span class="tag tag-blue">EN</span>
-    </div>
-  </div>
-
-  <h3 class="category-title">Reglementation (AI Act, Qualiopi)</h3>
-  <div class="card">
-    <div class="item">
-      <div class="item-title">🔥 AI Act France — sanctions applicables le 2 aout 2026 (H-104)</div>
-      <div class="item-desc">Article 4 (maitrise de l'IA) en vigueur depuis le 2 fevrier 2025. Sanctions jusqu'a 35 M€ ou 7% CA mondial (pratiques interdites), 15 M€ ou 3% (non-conformite). Tous les salaries utilisateurs + managers/dirigeants doivent etre formes. Format minimal : 1-2 h de sensibilisation par utilisateur. <strong>Opportunite massive de volume en formation courte inter-entreprises.</strong></div>
-      <a href="https://www.quillet-digital.com/actualite-du-web/ai-act-france-entreprises-2026" target="_blank" rel="noopener">AI Act France 2026 →</a>
-      <a href="https://lecollectif.net/blog/formation-ia-obligatoire-ai-act-sanctions-pme" target="_blank" rel="noopener">Le Collectif — AI Act obligatoire →</a>
-      <a href="https://www.cnfce.com/actualites/ai-act-quelles-obligations" target="_blank" rel="noopener">CNFCE — Obligations AI Act →</a>
-      <span class="tag tag-red">Opportunite #1</span>
-    </div>
-    <div class="item">
-      <div class="item-title">Action : packager "AI Act Starter" 2h avec attestation de formation</div>
-      <div class="item-desc">Tarif d'appel, volume, porte d'entree vers des modules plus avances. Cible PME 10-250 salaries. Differenciation unique sur le marche PACA.</div>
-      <span class="tag tag-green">Packaging</span>
-    </div>
-    <div class="item">
-      <div class="item-title">Qualiopi — reforme 2026 en cours</div>
-      <div class="item-desc">Extension obligatoire : tous les OF preparant a une certification devront etre Qualiopi en 2026, meme sans financement public. Audits renforces, dirigeant obligatoire, sanctions durcies. FAFCEA (artisans) : transition jusqu'au 30 juin 2026. <strong>Si pas encore Qualiopi, priorite absolue ce mois-ci.</strong></div>
-      <a href="https://certifopac.fr/qualiopi/actualites/reforme-2026/" target="_blank" rel="noopener">Reforme Qualiopi 2026 →</a>
-      <a href="https://www.centre-inffo.fr/site-droit-formation/actualites-droit/qualiopi-2026-2028-france-competences-ouvre-la-selection-des-instances-de-labellisation" target="_blank" rel="noopener">Qualiopi 2026-2028 Centre Inffo →</a>
-      <span class="tag tag-red">Urgence</span>
-    </div>
-  </div>
+<div class="item">
+<div class="item-title">Saint-Victoret — 9 227 m²</div>
+<strong>Adresse</strong> : 13730, zone industrielle (PC purgé 2 889 m² + bureaux 263 m²)<br>
+<strong>Prix</strong> : 3 144 000 €<br>
+<a href="https://www.bureauxlocaux.com/annonce/terrain-9-227-m2-a-vendre-13730-saint-victoret--39494492" target="_blank">🔗 Annonce directe</a>
 </div>
 
-<!-- =========== TAB : TERRAINS =========== -->
-<div class="tab-content" data-tab="terrains">
-  <h2 class="section-title">Terrains Selfstock PACA — 20 avril 2026</h2>
-
-  <div class="card alert-card info">
-    <div class="item">
-      <div class="item-title">Note de transparence sur la verification des liens</div>
-      <div class="item-desc">Les pages de detail BureauxLocaux (format <code>/annonce/slug-id</code>) sont rendues en JavaScript : WebFetch renvoie l'accueil. Les URLs ci-dessous sont neanmoins des <strong>liens directs indexes publiquement</strong> vers des annonces specifiques (jamais vers la page generale d'une agence). <strong>Une verification humaine du clic est recommandee avant toute action commerciale.</strong> Les annonces des 04, 05, 06 n'apparaissent pas ce jour — alerte a maintenir + prospection directe intercommunalites.</div>
-    </div>
-  </div>
-
-  <h3 class="category-title">Nouvelles annonces identifiees ce jour</h3>
-
-  <div class="terrain-card">
-    <div class="terrain-head">
-      <div>
-        <div class="terrain-ville">Hyeres (83) — ZI Saint-Martin 1 600 m²</div>
-        <div class="terrain-meta">Parcelle zone industrielle. Forte pertinence Selfstock. Contacter agence BureauxLocaux.</div>
-      </div>
-      <div class="terrain-prix">900 000 € HT</div>
-    </div>
-    <span class="tag tag-green">Vente</span><span class="tag tag-blue">ZI</span><span class="tag tag-red">Forte pertinence</span>
-    <div style="margin-top:10px;">
-      <a href="https://www.bureauxlocaux.com/annonce/parcelle-de-terrain-dune-surface-de-1600-m2-zone-i--873-1276656" target="_blank" rel="noopener">Voir l'annonce directe →</a>
-    </div>
-  </div>
-
-  <div class="terrain-card">
-    <div class="terrain-head">
-      <div>
-        <div class="terrain-ville">Avignon (84) — Terrain constructible zone UT 29 500 m²</div>
-        <div class="terrain-meta">Tres grande parcelle zone UT, acces facile, perimetre Avignon. Tres forte pertinence.</div>
-      </div>
-      <div class="terrain-prix">Prix sur demande</div>
-    </div>
-    <span class="tag tag-green">Vente</span><span class="tag tag-blue">Zone UT</span><span class="tag tag-red">Tres forte pertinence</span>
-    <div style="margin-top:10px;">
-      <a href="https://www.bureauxlocaux.com/annonce/proche-avignon-terrain-constructible-zone-ut-29-50--172-1337103" target="_blank" rel="noopener">Voir l'annonce directe →</a>
-    </div>
-  </div>
-
-  <div class="terrain-card">
-    <div class="terrain-head">
-      <div>
-        <div class="terrain-ville">La Valette-du-Var (83) — Zone Valgora 4 275 m²</div>
-        <div class="terrain-meta">Parcelle avec bati existant. Zone Valgora. Secteur dynamique Toulon-Est.</div>
-      </div>
-      <div class="terrain-prix">3 000 000 €</div>
-    </div>
-    <span class="tag tag-green">Vente</span><span class="tag tag-orange">Bati existant</span>
-    <div style="margin-top:10px;">
-      <a href="https://www.bureauxlocaux.com/annonce/parcelle-de-terrain-de-4275-m2--873-1164067" target="_blank" rel="noopener">Voir l'annonce directe →</a>
-    </div>
-  </div>
-
-  <div class="terrain-card">
-    <div class="terrain-head">
-      <div>
-        <div class="terrain-ville">Toulon (83) — Terrain 4 560 m² (secteur SIBLAS)</div>
-        <div class="terrain-meta">Zonage a qualifier (vue mer). Surface interessante si zone UE/activite.</div>
-      </div>
-      <div class="terrain-prix">Prix sur demande</div>
-    </div>
-    <span class="tag tag-green">Vente</span><span class="tag tag-gray">Zonage a qualifier</span>
-    <div style="margin-top:10px;">
-      <a href="https://www.bureauxlocaux.com/annonce/toulon-terrain-constructible-avec-vue-mer--5097-1379284" target="_blank" rel="noopener">Voir l'annonce directe →</a>
-    </div>
-  </div>
-
-  <h3 class="category-title">Annonces consolidees (historique veille)</h3>
-
-  <div class="terrain-card">
-    <div class="terrain-head">
-      <div>
-        <div class="terrain-ville">Marseille (13) — Terrain 272 m²</div>
-        <div class="terrain-meta">Surface limitee mais accessible. A evaluer pour usage self-stockage urbain compact.</div>
-      </div>
-    </div>
-    <span class="tag tag-green">Vente</span><span class="tag tag-gray">Urbain compact</span>
-    <div style="margin-top:10px;">
-      <a href="https://www.bureauxlocaux.com/annonce/terrain-272-m2-marseille-13--39799279" target="_blank" rel="noopener">Voir l'annonce directe →</a>
-    </div>
-  </div>
-
-  <div class="terrain-card">
-    <div class="terrain-head">
-      <div>
-        <div class="terrain-ville">Salon-de-Provence (13) — Terrain avec permis purge 4 062 m²</div>
-        <div class="terrain-meta">Permis deja purge, zone La Gandonne UE2. Gain de temps significatif pour un projet self-stockage.</div>
-      </div>
-    </div>
-    <span class="tag tag-green">Vente</span><span class="tag tag-blue">UE2</span><span class="tag tag-red">Permis purge</span>
-    <div style="margin-top:10px;">
-      <a href="https://www.bureauxlocaux.com/annonce/terrain-avec-permis-purge-a-vendre-la-gandonne-sal--39140264" target="_blank" rel="noopener">Voir l'annonce directe →</a>
-    </div>
-  </div>
-
-  <div class="terrain-card">
-    <div class="terrain-head">
-      <div>
-        <div class="terrain-ville">Le Rove (13) — ZI Les Pielettes 3 000 m²</div>
-        <div class="terrain-meta">Zone industrielle equipee, proximite Marseille.</div>
-      </div>
-    </div>
-    <span class="tag tag-green">Vente</span><span class="tag tag-blue">ZI</span>
-    <div style="margin-top:10px;">
-      <a href="https://www.bureauxlocaux.com/annonce/zi-les-pielettes--40126956" target="_blank" rel="noopener">Voir l'annonce directe →</a>
-    </div>
-  </div>
-
-  <div class="terrain-card">
-    <div class="terrain-head">
-      <div>
-        <div class="terrain-ville">Meyrargues (13) — Investissement 7 680 m² avec PC</div>
-        <div class="terrain-meta">Permis de construire deja obtenu. Gros potentiel, zone nord Aix.</div>
-      </div>
-    </div>
-    <span class="tag tag-green">Vente</span><span class="tag tag-red">PC obtenu</span>
-    <div style="margin-top:10px;">
-      <a href="https://www.bureauxlocaux.com/annonce/investissement-terrain-a-vendre-avec-pc--40126918" target="_blank" rel="noopener">Voir l'annonce directe →</a>
-    </div>
-  </div>
-
-  <div class="terrain-card">
-    <div class="terrain-head">
-      <div>
-        <div class="terrain-ville">Arles (13) — Terrain zone UE 5 564 m²</div>
-        <div class="terrain-meta">Zone UE = urbanisable activites. Prix au m² le plus competitif de la selection 13 (~105 €/m²).</div>
-      </div>
-    </div>
-    <span class="tag tag-green">Vente</span><span class="tag tag-blue">Zone UE</span>
-    <div style="margin-top:10px;">
-      <a href="https://www.bureauxlocaux.com/annonce/terrain-en-zone-ue-a-vendre--39913107" target="_blank" rel="noopener">Voir l'annonce directe →</a>
-    </div>
-  </div>
-
-  <div class="terrain-card">
-    <div class="terrain-head">
-      <div>
-        <div class="terrain-ville">Cabannes (13) — Terrain 8 268 m²</div>
-        <div class="terrain-meta">Grande surface, axe Avignon-Salon. ~120 €/m².</div>
-      </div>
-    </div>
-    <span class="tag tag-green">Vente</span>
-    <div style="margin-top:10px;">
-      <a href="https://www.bureauxlocaux.com/annonce/vente-terrain-cabannes-13440--39831586" target="_blank" rel="noopener">Voir l'annonce directe →</a>
-    </div>
-  </div>
-
-  <div class="terrain-card">
-    <div class="terrain-head">
-      <div>
-        <div class="terrain-ville">Vedene (84) — Terrain 13 034 m² zone artisanale</div>
-        <div class="terrain-meta">Zone artisanale, batiments d'activite existants a developper/renover. ~142 €/m².</div>
-      </div>
-    </div>
-    <span class="tag tag-green">Vente</span><span class="tag tag-blue">Zone artisanale</span>
-    <div style="margin-top:10px;">
-      <a href="https://www.bureauxlocaux.com/annonce/terrain-a-vendre--38782980" target="_blank" rel="noopener">Voir l'annonce directe →</a>
-    </div>
-  </div>
-
-  <div class="terrain-card">
-    <div class="terrain-head">
-      <div>
-        <div class="terrain-ville">Cavaillon (84) — Foncier 46 467 m² zone 1AUeb</div>
-        <div class="terrain-meta">Tres grande parcelle, parc d'activites en developpement. ~67 €/m² — meilleur prix m² de la selection.</div>
-      </div>
-    </div>
-    <span class="tag tag-green">Vente</span><span class="tag tag-blue">1AUeb</span><span class="tag tag-red">Meilleur €/m²</span>
-    <div style="margin-top:10px;">
-      <a href="https://www.bureauxlocaux.com/annonce/46-467-m2-de-foncier--36970945" target="_blank" rel="noopener">Voir l'annonce directe →</a>
-    </div>
-  </div>
-
-  <h3 class="category-title">Pistes complementaires (pages categorie — URL /annonce/ non encore identifiee)</h3>
-  <div class="card">
-    <div class="item">
-      <div class="item-title">Signaux identifies sur les pages categorie ce jour</div>
-      <div class="item-desc">Fos-sur-Mer ZAC Lavalduc, Marignane, Antibes 1 280 m² UZa, Nice Ouest, Carros ZI (location), Mazan ZA Piol II, Natura Parc (84). Pistes a qualifier via contact direct avec BureauxLocaux / leboncoin Pro.</div>
-      <a href="https://www.bureauxlocaux.com/immobilier-d-entreprise/annonces/var-83/vente-terrains" target="_blank" rel="noopener">Page 83 →</a>
-      <a href="https://www.bureauxlocaux.com/immobilier-d-entreprise/annonces/alpes-maritimes-06/vente-terrains" target="_blank" rel="noopener">Page 06 →</a>
-      <a href="https://www.bureauxlocaux.com/immobilier-d-entreprise/annonces/vaucluse-84/vente-terrains" target="_blank" rel="noopener">Page 84 →</a>
-      <span class="tag tag-orange">A qualifier</span>
-    </div>
-    <div class="item">
-      <div class="item-title">04 / 05 : zero terrain ZI indexe ce jour</div>
-      <div class="item-desc">Veille continue + demarche proactive vers intercommunalites (Dignois, Manosque, Sisteron, Briancon, Gap).</div>
-      <a href="https://www.bureauxlocaux.com/immobilier-d-entreprise/annonces/alpes-de-haute-provence-04/vente-terrains" target="_blank" rel="noopener">Page 04 →</a>
-      <a href="https://www.bureauxlocaux.com/immobilier-d-entreprise/annonces/gap-05000/vente-terrains" target="_blank" rel="noopener">Page 05 →</a>
-      <span class="tag tag-red">Trou geographique</span>
-    </div>
-  </div>
+<div class="item">
+<div class="item-title">Cabannes — 8 268 m²</div>
+<strong>Adresse</strong> : 13440, zone artisanale/industrielle (CES 0.70)<br>
+<strong>Prix</strong> : 992 160 €<br>
+<a href="https://www.bureauxlocaux.com/annonce/vente-terrain-cabannes-13440--39831586" target="_blank">🔗 Annonce directe</a>
 </div>
 
-<!-- =========== TAB : DATA CENTER =========== -->
-<div class="tab-content" data-tab="datacenter">
-  <h2 class="section-title">Usines / Data Center France 1 MW+ — 20 avril 2026</h2>
-
-  <h3 class="category-title">Top 5 opportunites a explorer en priorite</h3>
-
-  <div class="terrain-card" style="border-left:4px solid #4ade80;">
-    <div class="terrain-head">
-      <div>
-        <div class="terrain-ville">⭐⭐⭐⭐⭐ Thaon-les-Vosges (88) — Friche 40 ha</div>
-        <div class="terrain-meta">2 raccordements existants 400 kV + 63 kV — capacite totale jusqu'a <strong>450 MW</strong>. RN57 a 3 km, TGV Epinal (2,5h Paris), canal a proximite. Opérationnel 2028/2029.</div>
-      </div>
-      <div class="terrain-prix">Prix sur demande</div>
-    </div>
-    <div class="item-desc">Contact : Megane Colas — 04 65 84 01 52 — m.colas@geolink-expansion.com<br>Last updated 25/03/2026, site cle en main France 2030.</div>
-    <span class="tag tag-red">5/5</span><span class="tag tag-green">400 kV + 63 kV</span><span class="tag tag-purple">France 2030</span>
-    <div style="margin-top:10px;">
-      <a href="https://immo-hub.org/terrains-et-locaux-d-activites/a-vendre-friche-industrielle-de-40-hectares-a-thaon-les-vosges-vosges-88" target="_blank" rel="noopener">Voir l'annonce immo-hub →</a>
-    </div>
-  </div>
-
-  <div class="terrain-card" style="border-left:4px solid #4ade80;">
-    <div class="terrain-head">
-      <div>
-        <div class="terrain-ville">⭐⭐⭐⭐⭐ Datalok VT-2025-001 — 12 ha / 150 MW (Centre France)</div>
-        <div class="terrain-meta">120 460 m² non developpe, classe industriel. Zone a 2h Lyon, &lt;5 km sous-station RTE. Etude exploratoire RTE approuvee.</div>
-      </div>
-      <div class="terrain-prix">16 M€ total</div>
-    </div>
-    <div class="item-desc">Decomposition : 9 M€ terrain + 7 M€ raccordement. Delai raccordement 60 mois. Contact : contact@datalok.io</div>
-    <span class="tag tag-red">5/5</span><span class="tag tag-green">150 MW</span><span class="tag tag-blue">Etude RTE OK</span>
-    <div style="margin-top:10px;">
-      <a href="https://www.datalok.io/en/classified/VT-2025-001.html" target="_blank" rel="noopener">Fiche Datalok VT-2025-001 →</a>
-    </div>
-  </div>
-
-  <div class="terrain-card" style="border-left:4px solid #4ade80;">
-    <div class="terrain-head">
-      <div>
-        <div class="terrain-ville">⭐⭐⭐⭐⭐ Dunkerque (59) — GPM 21 ha / 400-700 MW</div>
-        <div class="terrain-meta">AMI lance debut 2026. 21 ha, engagement raccordement RTE 700 MW, infrastructure existante.</div>
-      </div>
-      <div class="terrain-prix">AMI ouvert</div>
-    </div>
-    <span class="tag tag-red">5/5</span><span class="tag tag-orange">AMI</span><span class="tag tag-green">700 MW</span>
-    <div style="margin-top:10px;">
-      <a href="https://dcmag.fr/le-grand-port-maritime-de-dunkerque-lance-un-ami-pour-un-datacenter-entre-400-et-700-mw/" target="_blank" rel="noopener">DCmag — AMI Dunkerque →</a>
-    </div>
-  </div>
-
-  <div class="terrain-card" style="border-left:4px solid #4ade80;">
-    <div class="terrain-head">
-      <div>
-        <div class="terrain-ville">⭐⭐⭐⭐⭐ Loire-sur-Rhone (69) — 60 ha AMI EDF</div>
-        <div class="terrain-meta">Ancienne centrale thermique EDF (fioul + charbon, 1960s-2005). AMI lance 22 dec 2025, depot propositions jusqu'au 27 fev 2026. Cible operateur &gt;50 MW.</div>
-      </div>
-      <div class="terrain-prix">AMI EDF</div>
-    </div>
-    <span class="tag tag-red">5/5</span><span class="tag tag-orange">AMI EDF</span>
-    <div style="margin-top:10px;">
-      <a href="https://www.edf.fr/en/the-edf-group/supporting-our-clients/ami-data-centers" target="_blank" rel="noopener">EDF AMI Data Centers →</a>
-      <a href="https://www.vivre-villes.fr/vienne/vienne-a-la-une/2026/01/22/edf-prevoit-dinstaller-un-data-center-de-grande-puissance-sur-le-site-de-lancienne-centrale-thermique-de-loire-sur-rhone/" target="_blank" rel="noopener">Vivre Villes →</a>
-    </div>
-  </div>
-
-  <div class="terrain-card" style="border-left:4px solid #4ade80;">
-    <div class="terrain-head">
-      <div>
-        <div class="terrain-ville">⭐⭐⭐⭐ L'Ardoise / Laudun-L'Ardoise (30) — 35 ha</div>
-        <div class="terrain-meta">Site Cle en Main France 2030. AAP lance. Friche industrielle, accessibilite route/rail/fleuve.</div>
-      </div>
-      <div class="terrain-prix">AAP ouvert</div>
-    </div>
-    <span class="tag tag-orange">4/5</span><span class="tag tag-purple">France 2030</span>
-    <div style="margin-top:10px;">
-      <a href="https://www.gardrhodanien.fr/lagglo/grands-projets/lardoise-site-cle-en-main-france-2030-appel-a-projets/" target="_blank" rel="noopener">Site officiel Gard Rhodanien →</a>
-    </div>
-  </div>
-
-  <h3 class="category-title">Autres sites industriels disponibles</h3>
-
-  <div class="terrain-card">
-    <div class="terrain-head">
-      <div>
-        <div class="terrain-ville">Reims (51) — Site industriel 20 000 m²</div>
-        <div class="terrain-meta">Terrain 33 979 m² / Bati 20 177 m² (6 halls 2 800-3 600 m², 14 ponts roulants, 11 portes sectionnelles). Proximite ZI Colbert, acces A26/A344.</div>
-      </div>
-      <div class="terrain-prix">9 700 000 € TTC</div>
-    </div>
-    <span class="tag tag-orange">3/5</span>
-    <div style="margin-top:10px;">
-      <a href="https://immo-hub.org/terrains-et-locaux-d-activites/a-vendre-site-industriel-de-plus-de-20-000-m2-a-reims-marne-51" target="_blank" rel="noopener">Annonce Reims →</a>
-    </div>
-  </div>
-
-  <div class="terrain-card">
-    <div class="terrain-head">
-      <div>
-        <div class="terrain-ville">Val-de-Reuil (27) — Site 4,5 ha</div>
-        <div class="terrain-meta">Batiment industriel 3 130 m² + tertiaire 2 600 m². Fibre optique, quais, acces A13, proximite Rouen/Le Havre/Paris.</div>
-      </div>
-      <div class="terrain-prix">Vente OU location</div>
-    </div>
-    <span class="tag tag-orange">3/5</span>
-    <div style="margin-top:10px;">
-      <a href="https://immo-hub.org/terrains-et-locaux-d-activites/a-vendre-ou-a-louer-site-industriel-de-4-5-hectares-a-val-de-reuil-seine-maritime-76" target="_blank" rel="noopener">Annonce Val-de-Reuil →</a>
-    </div>
-  </div>
-
-  <div class="terrain-card">
-    <div class="terrain-head">
-      <div>
-        <div class="terrain-ville">Liffol-le-Grand (88) — Batiment 10 000 m²</div>
-        <div class="terrain-meta">Batiment industriel 10 000 m². Vente ou location.</div>
-      </div>
-    </div>
-    <span class="tag tag-orange">3/5</span>
-    <div style="margin-top:10px;">
-      <a href="https://immo-hub.org/terrains-et-locaux-d-activites/a-vendre-ou-a-louer-batiment-industriel-de-10-000-m2-a-liffol-le-grand-vosges-88" target="_blank" rel="noopener">Annonce Liffol →</a>
-    </div>
-  </div>
-
-  <div class="terrain-card">
-    <div class="terrain-head">
-      <div>
-        <div class="terrain-ville">Rambervillers (88) — 6 ha divisibles</div>
-      </div>
-    </div>
-    <div style="margin-top:10px;">
-      <a href="https://immo-hub.org/terrains-et-locaux-d-activites/a-vendre-6-hectares-de-terrain-industriel-divisible-a-rambervillers-vosges-88" target="_blank" rel="noopener">Annonce Rambervillers →</a>
-    </div>
-  </div>
-
-  <div class="terrain-card">
-    <div class="terrain-head">
-      <div>
-        <div class="terrain-ville">Charmes (88) — 8 ha divisibles</div>
-      </div>
-    </div>
-    <div style="margin-top:10px;">
-      <a href="https://immo-hub.org/terrains-et-locaux-d-activites/a-vendre-terrain-industriel-de-8-hectares-divisible-a-charmes-vosges-88" target="_blank" rel="noopener">Annonce Charmes →</a>
-    </div>
-  </div>
-
-  <div class="terrain-card">
-    <div class="terrain-head">
-      <div>
-        <div class="terrain-ville">Val-de-Reuil Pharma-Parc (27) — 40 ha</div>
-        <div class="terrain-meta">Divisibles a partir de 5 ha, dedies sante/electronique/IT.</div>
-      </div>
-    </div>
-    <div style="margin-top:10px;">
-      <a href="https://immo-hub.org/terrains-et-locaux-d-activites/a-vendre-40-hectares-de-terrains-industriels-dedies-a-la-sante-sur-le-pharma-parc-de-val-de-reuil-eure-27" target="_blank" rel="noopener">Annonce Pharma-Parc →</a>
-    </div>
-  </div>
-
-  <h3 class="category-title">AMI / AAP en cours</h3>
-  <div class="card">
-    <div class="item">
-      <div class="item-title">Bosquel (80) — ZAC reprise apres abandon Fluidstack</div>
-      <div class="item-desc">Nouvel AMI fin 2025. Terrain securise, plusieurs hyperscalers en discussion apres le retrait de Fluidstack (projet initial 10 Md€ / 1 GW).</div>
-      <a href="https://dcmag.fr/fluidstack-met-fin-a-son-projet-de-data-center-dia-a-bosquel-mistral-et-eclairion-seraient-egalement-impactes/" target="_blank" rel="noopener">DCmag Bosquel →</a>
-      <a href="https://www.marchesonline.com/appels-offres/avis/appel-a-manifestation-d-interet-developpement-d-u/ao-9534324-1" target="_blank" rel="noopener">Marchésonline AMI →</a>
-    </div>
-    <div class="item">
-      <div class="item-title">Montereau-Vallee-de-la-Seine (77) — EDF / OpCore</div>
-      <div class="item-desc">Ex-centrale charbon. Projet OpCore en cours, mise en service 2027. Fait partie des 5 sites fast-track ≥ 700 MW.</div>
-      <a href="https://www.datacenterdynamics.com/en/news/edf-calls-for-expressions-of-interest-from-data-center-developers-for-three-sites/" target="_blank" rel="noopener">DCD — EDF AMI →</a>
-    </div>
-    <div class="item">
-      <div class="item-title">La Maxe (57) & Richemont (57) — EDF</div>
-      <div class="item-desc">Ex-centrale thermique 500 MW (La Maxe, fermee 2015). Projet Eclairion 2 Md€ a Richemont.</div>
-      <a href="https://www.usinenouvelle.com/electronique-informatique/cloud-computing/datacenters/apres-la-seine-et-marne-et-la-moselle-edf-va-accueillir-un-quatrieme-datacenter-sur-le-site-dune-ancienne-centrale-pres-de-lyon.LN4PT3V2WZDXJAVUQN2KZCJKBQ.html" target="_blank" rel="noopener">Usine Nouvelle →</a>
-    </div>
-  </div>
-
-  <h3 class="category-title">Cartes RTE / Enedis & outils officiels</h3>
-  <div class="card">
-    <div class="item">
-      <div class="item-title">Caparéseau.fr — carte interactive des postes sources HT</div>
-      <div class="item-desc">Cercles colores proportionnels a la capacite d'accueil. Outil officiel RTE.</div>
-      <a href="https://www.services-rte.com/en/learn-more-about-our-services/consult-the-reception-capacity-of-the-grid-capareseau.html" target="_blank" rel="noopener">RTE Capareseau →</a>
-      <a href="https://www.services-rte.com/fr/visualisez-les-donnees-du-reseau.html" target="_blank" rel="noopener">RTE — Visualiser les donnees du reseau →</a>
-    </div>
-    <div class="item">
-      <div class="item-title">Enedis — cartographie</div>
-      <div class="item-desc">Outil officiel Enedis pour la cartographie du reseau de distribution.</div>
-      <a href="https://data.enedis.fr/pages/cartographie/" target="_blank" rel="noopener">Enedis — Cartographie →</a>
-    </div>
-    <div class="item">
-      <div class="item-title">RTE Portail Clients — Potentiel raccordement</div>
-      <div class="item-desc">Mode d'emploi et demarches de raccordement. Public cible : developpeurs de sites energivores.</div>
-      <a href="https://clients.rte-france.com/lang/fr/clients_producteurs/services_clients/potentiel_raccordement_mode_emploi.jsp" target="_blank" rel="noopener">RTE Portail Clients →</a>
-    </div>
-    <div class="item">
-      <div class="item-title">Data.gouv & ANCT — Sites Cles en Main France 2030</div>
-      <div class="item-desc">Dataset et cartotheque officielle ANCT des 26+ sites labellises France 2030.</div>
-      <a href="https://anct.gouv.fr/ressources/cartotheque/sites-cles-en-main-france-2030" target="_blank" rel="noopener">ANCT Cartotheque →</a>
-      <a href="https://www.data.gouv.fr/datasets/les-sites-cles-en-main-france-2030" target="_blank" rel="noopener">Data.gouv Sites Cles en Main →</a>
-      <a href="https://www.data.gouv.fr/datasets/capacites-daccueil-du-reseau" target="_blank" rel="noopener">Data.gouv Capacites d'accueil →</a>
-    </div>
-    <div class="item">
-      <div class="item-title">Carte dynamique data centers France — DCmag</div>
-      <div class="item-desc">Cartographie a jour des projets data centers.</div>
-      <a href="https://carte.dcmag.fr/" target="_blank" rel="noopener">Carte DCmag →</a>
-      <a href="https://reporterre.net/Un-data-center-construit-pres-de-chez-vous-La-reponse-en-carte" target="_blank" rel="noopener">Reporterre →</a>
-    </div>
-  </div>
-
-  <h3 class="category-title">Projets en cours (indicateurs de marche)</h3>
-  <div class="card">
-    <div class="item">
-      <div class="item-title">Bethune (62) ex-Bridgestone — 240 MW (Nebius / Azur Datacenter)</div>
-      <div class="item-desc">Bail signe mai 2025 avec SIG. Site 160 000 m².</div>
-      <a href="https://www.usinenouvelle.com/quotidien-des-usines/le-hollandais-nebius-veut-installer-un-centre-de-donnees-sur-une-friche-industrielle-geante-des-hauts-de-france.TPC5W7S4SRDBDFP7STMV3GVH3A.html" target="_blank" rel="noopener">Usine Nouvelle Nebius →</a>
-      <a href="https://s-i-g.fr/data-center-sig-bethune/" target="_blank" rel="noopener">SIG Bethune →</a>
-    </div>
-    <div class="item">
-      <div class="item-title">Escaudain (59) friche Usinor — 700 MW, 38 ha (Data4)</div>
-      <div class="item-desc">Investissement 5 Md€. Mise en service 2030. Proximite poste Mastaing.</div>
-      <a href="https://www.data4group.com/wp-content/uploads/2025/12/CP-FINAL-Data4-Agglomeration-de-La-Porte-du-Hainaut.pdf" target="_blank" rel="noopener">Communique Data4 →</a>
-    </div>
-    <div class="item">
-      <div class="item-title">Aulnay-sous-Bois (93) ex-friche PSA — Data Hills</div>
-      <div class="item-desc">SNC Data Hills (Terra Nobilis + Compagnie de Phalsbourg). 5,6 ha, 42 salles / 21 000 racks.</div>
-      <a href="https://www.aulnaylibre.com/2025/10/debut-des-travaux-de-construction-des-centres-de-donnees-sur-l-ancienne-friche-psa-a-aulnay-sous-bois.html" target="_blank" rel="noopener">AulnayLibre →</a>
-    </div>
-    <div class="item">
-      <div class="item-title">Rantigny (60) friche Avon ex-Caterpillar — 300 MW (2×100 MW)</div>
-      <div class="item-desc">35 ha, ligne 120 kV traversant le site, 4,5 Md€.</div>
-      <a href="https://dcmag.fr/un-projet-de-datacenter-pour-2-hyperscalers-sur-la-friche-industrielle-caterpillar-a-rantigny-oise/" target="_blank" rel="noopener">DCmag Rantigny →</a>
-      <a href="https://www.epflo.fr/exemples-dinterventions/rantigny-site-caterpillar" target="_blank" rel="noopener">EPFLO →</a>
-    </div>
-    <div class="item">
-      <div class="item-title">Fouju (77) — 1,4 GW cible</div>
-      <div class="item-desc">Campus AI. 240 MW fin 2027 puis 700 MW fin 2029.</div>
-      <a href="https://www.lemagit.fr/actualites/366638581/Datacenters-pour-lIA-la-France-se-felicite-davancees-rapides" target="_blank" rel="noopener">LeMagIT →</a>
-    </div>
-  </div>
-
-  <h3 class="category-title">Fermetures industrielles a surveiller (opportunites futures)</h3>
-  <div class="card">
-    <div class="table-wrap">
-      <table>
-        <thead><tr><th>Site</th><th>Secteur</th><th>Statut 2025-2026</th></tr></thead>
-        <tbody>
-          <tr><td>Michelin Vannes (56)</td><td>Pneumatiques</td><td>Fermeture debut 2026</td></tr>
-          <tr><td>Michelin Cholet (49)</td><td>Pneumatiques</td><td>Fermeture debut 2026, 6,8 M€ revitalisation</td></tr>
-          <tr><td>Vencorex Pont-de-Claix (38)</td><td>Chimie</td><td>Fermeture 2026, ferraillage prevu</td></tr>
-          <tr><td>Arkema Jarrie (38)</td><td>Chimie</td><td>Reduction 150 postes</td></tr>
-          <tr><td>Condat Lardin-Saint-Lazare (24)</td><td>Papeterie</td><td>Mise en vente, liquidation 2026</td></tr>
-          <tr><td>Sanofi Maisons-Alfort (94)</td><td>Pharma</td><td>Cession a Adragos Pharma</td></tr>
-          <tr><td>Sanofi Amilly (45)</td><td>Pharma</td><td>Cession a Astrea Pharma</td></tr>
-          <tr><td>EDF Cordemais (44)</td><td>Centrale charbon</td><td>Fermeture 31/03/2027, reconversion Framatome</td></tr>
-        </tbody>
-      </table>
-    </div>
-    <div class="item">
-      <a href="https://www.michelin.com/publications/groupe/le-groupe-michelin-annonce-son-intention-de-fermer-les-sites-de-cholet-et-vannes-cp" target="_blank" rel="noopener">Michelin — fermetures →</a>
-      <a href="https://www.usinenouvelle.com/article/sanofi-en-passe-de-ceder-son-usine-de-medicaments-injectables-a-maisons-alfort.N2234367" target="_blank" rel="noopener">Sanofi Maisons-Alfort →</a>
-      <a href="https://www.graphiline.com/article/50296/la-papeterie-de-condat-est-a-vendre-avant-la-fin-2025" target="_blank" rel="noopener">Condat →</a>
-      <a href="https://www.usinenouvelle.com/article/edf-lache-le-projet-de-reconversion-de-la-centrale-charbon-de-cordemais-qui-fermera-en-2027.N2219123" target="_blank" rel="noopener">Cordemais →</a>
-    </div>
-  </div>
-
-  <h3 class="category-title">Portails a surveiller</h3>
-  <div class="card">
-    <div class="item">
-      <a href="https://www.bureauxlocaux.com/immobilier-d-entreprise/annonces/vente-terrains" target="_blank" rel="noopener">BureauxLocaux terrains →</a>
-      <a href="https://immo-hub.org/terrains-industriels-a-vendre" target="_blank" rel="noopener">Immo-HUB friches →</a>
-      <a href="https://immo-hub.org/batiments-industriels-a-vendre" target="_blank" rel="noopener">Immo-HUB batiments →</a>
-      <a href="https://www.arthur-loyd.com/terrain-vente" target="_blank" rel="noopener">Arthur Loyd →</a>
-      <a href="https://immobilier.cbre.fr/vente-entrepots.aspx" target="_blank" rel="noopener">CBRE entrepots →</a>
-      <a href="https://www.datalok.io/fr/annonce/" target="_blank" rel="noopener">Datalok marketplace →</a>
-      <a href="https://www.francemarches.com/appels-offre/datacenter" target="_blank" rel="noopener">FranceMarches AO datacenter →</a>
-    </div>
-  </div>
+<div class="item">
+<div class="item-title">Plan-d'Orgon — 5 000 m²</div>
+<strong>Zone activité</strong> : local 500 m² + extension possible 2 000 m²<br>
+<strong>Prix</strong> : 1 696 000 €<br>
+<a href="https://www.bureauxlocaux.com/annonce/terrain-constructible-avec-bati-existant--38901305" target="_blank">🔗 Annonce directe</a>
 </div>
 
-<!-- =========== TAB : SPACE DATA =========== -->
-<div class="tab-content" data-tab="spacedata">
-  <h2 class="section-title">Space Data — veille concurrentielle — 20 avril 2026</h2>
-
-  <div class="kpi-grid">
-    <div class="kpi">
-      <div class="label">GEODNET (GEOD)</div>
-      <div class="value" style="color:#4ade80;">~$0,13</div>
-      <div class="change neutral">~$54M cap</div>
-    </div>
-    <div class="kpi">
-      <div class="label">WeatherXM stations</div>
-      <div class="value">9 600+</div>
-      <div class="change neutral">98 pays</div>
-    </div>
-    <div class="kpi">
-      <div class="label">Centipede bases FR</div>
-      <div class="value">625</div>
-      <div class="change neutral">860 intl / 30 pays</div>
-    </div>
-    <div class="kpi">
-      <div class="label">NOAA contrat PlanetiQ</div>
-      <div class="value">$24M</div>
-      <div class="change neutral">7 000 profils/jour</div>
-    </div>
-    <div class="kpi">
-      <div class="label">EU Space Act</div>
-      <div class="value">2030</div>
-      <div class="change neutral">application reportee</div>
-    </div>
-    <div class="kpi">
-      <div class="label">NOAA SBEM IDIQ</div>
-      <div class="value" style="color:#4ade80;">Milliards</div>
-      <div class="change neutral">sur 10 ans</div>
-    </div>
-  </div>
-
-  <h3 class="category-title">Mouvements concurrents de la semaine</h3>
-  <div class="card">
-    <div class="item">
-      <div class="item-title">GEODNET — GEODASH Aerosystems avec DroneDash (15 avril 2026)</div>
-      <div class="item-desc">JV incorporee a Singapour. Drone agricole RTK-AI map-free. Cibles palmier huile SE Asie, soja/mais US, canne a sucre LATAM. Commercial T3 2026. <strong>Risque d'absorption de notre modele hote par un concurrent a effet reseau plus fort.</strong></div>
-      <a href="https://www.roboticstomorrow.com/news/2026/04/15/dronedash-and-geodnet-launch-geodash-aerosystems-to-bring-map-free-ai-driven-precision-spraying-to-industrial-agriculture/26422/" target="_blank" rel="noopener">RoboticsTomorrow →</a>
-      <a href="https://www.implicator.ai/geodash-targets-q3-launch-for-map-free-farm-spraying-drone-system/" target="_blank" rel="noopener">Implicator.ai →</a>
-      <span class="tag tag-red">Menace</span>
-    </div>
-    <div class="item">
-      <div class="item-title">u-blox — ZED-X20D (mars 2026), ZED-X20P (XPONENTIAL 2026)</div>
-      <div class="item-desc">Modules GNSS multi-bandes 672 canaux, RTK centimetrique, heading dual-antenne meme a vitesse nulle. <strong>Opportunite BOM -15 a -25%</strong> si migration F9P -> X20 pour Space Data. <strong>Menace</strong> si integrateurs tiers combinent X20 + capteurs atmos low-cost.</div>
-      <a href="https://insidegnss.com/u-blox-introduces-zed-x20d-gnss-heading-module-for-mass-market-high-precision-applications/" target="_blank" rel="noopener">InsideGNSS u-blox →</a>
-      <span class="tag tag-orange">Techno</span>
-    </div>
-    <div class="item">
-      <div class="item-title">ARK Electronics — ARK G5 RTK NDAA-compliant (janvier 2026)</div>
-      <div class="item-desc">Premier module GPS dual-antenne Made in USA, base Septentrio mosaic-G5. Vise le marche defense US interdit au materiel chinois. <strong>Opportunite souverainete europeenne</strong> pour Space Data.</div>
-      <a href="https://www.unmannedsystemstechnology.com/2026/01/ark-electronics-launches-ndaa-compliant-rtk-gps-modules/" target="_blank" rel="noopener">Unmanned Systems →</a>
-      <span class="tag tag-green">Signal positif FR</span>
-    </div>
-    <div class="item">
-      <div class="item-title">WeatherXM — 9 600+ stations DePIN dans 98 pays</div>
-      <div class="item-desc">1,5M+ station-days. 30 stations haute precision dans le Peloponnese (fev-avril 2026). <strong>Menace directe</strong> sur le modele "stations meteo chez particuliers" — meme s'ils restent meteo surface.</div>
-      <a href="https://weatherxm.com/" target="_blank" rel="noopener">WeatherXM →</a>
-      <span class="tag tag-red">Menace forte</span>
-    </div>
-    <div class="item">
-      <div class="item-title">Swift Navigation — Skylark Nx RTK, certif ISO 26262 automotive</div>
-      <div class="item-desc">Premier cloud real-time certifie fonctional safety automotive. Expansion Europe elargie, Asie, Australie. <strong>Gap a combler</strong> si Space Data cible VA — ou partenariat.</div>
-      <a href="https://www.swiftnav.com/products/skylark/nx-rtk" target="_blank" rel="noopener">Swift Nav Skylark →</a>
-      <span class="tag tag-orange">Certif VA</span>
-    </div>
-    <div class="item">
-      <div class="item-title">Trimble x Xona Space Systems — alternative LEO-PNT</div>
-      <div class="item-desc">Partenariat et investissement Trimble dans Xona (constellation LEO-PNT). Le leader historique RTK se repositionne.</div>
-      <a href="https://locationbusinessnews.substack.com/p/trimble-partners-with-xona-space" target="_blank" rel="noopener">Trimble Xona →</a>
-      <span class="tag tag-blue">Tendance</span>
-    </div>
-    <div class="item">
-      <div class="item-title">Starcloud / Orbital (a16z) — data centers spatiaux, compute orbital IA</div>
-      <div class="item-desc">Starcloud $170M Serie A, valorisation $1,1Md. <strong>Pas concurrents directs</strong> mais drainent le capital "space data" vers l'orbital. Positionner Space Data en "ground-based complementary".</div>
-      <a href="https://techcrunch.com/2026/03/30/starcloud-raises-170-million-series-ato-build-data-centers-in-space/" target="_blank" rel="noopener">TechCrunch Starcloud →</a>
-      <span class="tag tag-purple">Complement</span>
-    </div>
-  </div>
-
-  <h3 class="category-title">Evolutions reglementaires</h3>
-  <div class="card">
-    <div class="item">
-      <div class="item-title">EU Space Act — texte de compromis 30 mars 2026, application 1er janvier 2030</div>
-      <div class="item-desc">Fenetre de 3,5 ans sans contrainte space-related renforcee. A suivre : dispositions surete et empreinte environnementale.</div>
-      <a href="https://space.commerce.gov/eu-space-act-update-april-2026/" target="_blank" rel="noopener">EU Space Act update →</a>
-      <span class="tag tag-green">Fenetre favorable</span>
-    </div>
-    <div class="item">
-      <div class="item-title">EU Data Act — applicable depuis le 12 septembre 2025</div>
-      <div class="item-desc">Les utilisateurs controlent les donnees de leurs objets connectes. <strong>Nos hotes particuliers pourraient reclamer plus de droits sur les donnees generees par leurs stations.</strong> A anticiper dans CGU/contrats.</div>
-      <a href="https://digital-strategy.ec.europa.eu/en/policies/data-act" target="_blank" rel="noopener">EU Data Act →</a>
-      <span class="tag tag-orange">CGU a revoir</span>
-    </div>
-    <div class="item">
-      <div class="item-title">🎯 NOAA NESDIS — Draft RFP SBEM IDIQ (12 mars 2026) + Industry Day (9 avril)</div>
-      <div class="item-desc">Plafond "a hauteur de milliards sur 10 ans". <strong>Fenetre d'action immediate.</strong> Candidater en direct OU via un prime US (PlanetiQ $24M = benchmark).</div>
-      <a href="https://www.nesdis.noaa.gov/news/engaging-commercial-weather-satellite-companies-nesdis-sets-date-industry-day-review-upcoming-environmental-monitoring-contract" target="_blank" rel="noopener">NOAA NESDIS →</a>
-      <a href="https://www.eenews.net/articles/noaa-issues-record-contract-for-private-sector-atmospheric-data/" target="_blank" rel="noopener">E&E News PlanetiQ →</a>
-      <span class="tag tag-red">Priorite 1</span>
-    </div>
-    <div class="item">
-      <div class="item-title">Meteo-France — COP 2022-2026, derniere annee</div>
-      <div class="item-desc">Strategie officielle de multiplication des partenariats publics-prives pour l'observation externe. Donnees publiques en libre acces gratuit. <strong>Fenetre francaise ouverte.</strong></div>
-      <a href="https://meteofrance.fr/sites/meteofrance.fr/files/files/editorial/Rapport_COP_V14.pdf" target="_blank" rel="noopener">Rapport COP Meteo-France →</a>
-      <span class="tag tag-green">Partenariat</span>
-    </div>
-    <div class="item">
-      <div class="item-title">FCC / NOAA — flexibilite budgetaire sur l'achat de donnees meteo commerciales</div>
-      <div class="item-desc">Montee en puissance budgetaire du client cible #1 de Space Data.</div>
-      <span class="tag tag-green">Marche US</span>
-    </div>
-  </div>
-
-  <h3 class="category-title">Opportunites identifiees</h3>
-  <div class="card">
-    <div class="item">
-      <div class="item-title">1. Repondre au draft RFP NOAA SBEM IDIQ</div>
-      <div class="item-desc">Directe ou sous-traitance d'un prime US. Deadline probable mi-2026. Benchmark prix : PlanetiQ $24M / 7 000 profils/jour.</div>
-      <span class="tag tag-red">Priorite absolue</span>
-    </div>
-    <div class="item">
-      <div class="item-title">2. Positionnement "souverainete europeenne"</div>
-      <div class="item-desc">Segmentation geopolitique GNSS (NDAA US, exclusions chinoises). Space Data = alternative FR/UE pour ESA, DGA, aviation civile europeenne.</div>
-      <span class="tag tag-green">Positionnement</span>
-    </div>
-    <div class="item">
-      <div class="item-title">3. Densification France hors Centipede</div>
-      <div class="item-desc">Centipede a 625 bases en metropole (open source, gratuit). Space Data ne doit pas concurrencer sur le RTK pur — proposer <strong>les profils atmos verticaux</strong> (ni Centipede, ni GEODNET, ni RGP IGN ne le font).</div>
-      <a href="https://www.inrae.fr/en/news/democratising-precision-guided-agriculture-ever-expanding-centipede-rtk-network" target="_blank" rel="noopener">Centipede INRAE →</a>
-      <a href="https://rgp.ign.fr/" target="_blank" rel="noopener">RGP IGN →</a>
-      <span class="tag tag-green">Differenciation</span>
-    </div>
-    <div class="item">
-      <div class="item-title">4. Offre "roadweather" pour le VA</div>
-      <div class="item-desc">Xweather demontre : desactivations autonomes passees de 20,4% a 10% avec donnees meteo route. Opportunite B2B avec constructeurs europeens.</div>
-      <a href="https://www.xweather.com/weather-api/road-weather/ad-adas" target="_blank" rel="noopener">Xweather Road Weather →</a>
-      <span class="tag tag-blue">B2B VA</span>
-    </div>
-    <div class="item">
-      <div class="item-title">5. Partenariat Meteo-France (COP 2022-2026)</div>
-      <div class="item-desc">COP mandate explicitement le developpement de partenariats prives. Fenetre avant le prochain COP.</div>
-      <span class="tag tag-green">Institutionnel</span>
-    </div>
-    <div class="item">
-      <div class="item-title">6. Monetisation hotes (modele WeatherXM)</div>
-      <div class="item-desc">Recompenses aux proprietaires de stations. Etudier un schema de remuneration variable pour stabiliser notre base installee.</div>
-      <span class="tag tag-purple">Modele hote</span>
-    </div>
-  </div>
-
-  <h3 class="category-title">Menaces a surveiller</h3>
-  <div class="card">
-    <div class="table-wrap">
-      <table>
-        <thead><tr><th>Menace</th><th>Acteur</th><th>Echeance</th><th>Criticite</th></tr></thead>
-        <tbody>
-          <tr><td>Extension GEODNET aux capteurs meteo/atmos</td><td>GEODNET</td><td>12-24 mois</td><td>Elevee</td></tr>
-          <tr><td>WeatherXM deja installe chez 9 600+ hotes mondiaux</td><td>WeatherXM</td><td>Immediate</td><td>Elevee</td></tr>
-          <tr><td>Commoditisation BOM par u-blox X20</td><td>u-blox</td><td>6-12 mois</td><td>Moyenne</td></tr>
-          <tr><td>ISO 26262 requis pour le VA</td><td>Swift Nav Skylark</td><td>12 mois</td><td>Moyenne</td></tr>
-          <tr><td>Centipede en expansion hors France (860 bases / 30 pays)</td><td>Centipede-RTK INRAE</td><td>Continue</td><td>Moyenne</td></tr>
-          <tr><td>NOAA durcit specs "profils atmos"</td><td>NOAA NESDIS</td><td>avril 2026</td><td>Moyenne</td></tr>
-          <tr><td>Donnees publiques meteo gratuites</td><td>Etat FR</td><td>En place</td><td>Moyenne</td></tr>
-          <tr><td>Concurrence satellitaire (PlanetiQ, PMEL BEACONS mai 2026)</td><td>NOAA / PMEL</td><td>Q2 2026</td><td>Elevee LT</td></tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-
-  <h3 class="category-title">Recommandations d'action</h3>
-  <div class="card">
-    <div class="item">
-      <div class="item-title">Cette semaine — RFP SBEM IDIQ</div>
-      <div class="item-desc">Recuperer le draft sur SAM.gov. Evaluer eligibilite Space Data (directe ou via prime). Call avec PlanetiQ ou integrateur US.</div>
-      <span class="tag tag-red">Prio 1</span>
-    </div>
-    <div class="item">
-      <div class="item-title">Sous 30 jours — one-pager "Space Data vs weather DePIN"</div>
-      <div class="item-desc">Audit differenciation vs WeatherXM. Profils verticaux, qualite instrumentale, tracabilite metrologique, clients institutionnels. Destination ESA/aviation.</div>
-      <span class="tag tag-orange">Marketing</span>
-    </div>
-    <div class="item">
-      <div class="item-title">Sous 60 jours — RDV Meteo-France</div>
-      <div class="item-desc">DSI Donnees / Direction de la Climatologie. Se positionner comme partenaire prive dans le cadre du COP 2022-2026.</div>
-      <span class="tag tag-green">Institutionnel</span>
-    </div>
-    <div class="item">
-      <div class="item-title">Sous 90 jours — etude faisabilite migration u-blox X20</div>
-      <div class="item-desc">BOM -15 a -25%. A valider techniquement.</div>
-      <span class="tag tag-blue">Produit</span>
-    </div>
-    <div class="item">
-      <div class="item-title">T2-T3 2026 — certification ISO 26262 / ASIL (ou partenariat)</div>
-      <div class="item-desc">Si le marche VA reste prioritaire. Alternative : partenariat OEM Swift Nav / Trimble en overlay atmos.</div>
-      <span class="tag tag-purple">VA</span>
-    </div>
-    <div class="item">
-      <div class="item-title">Defensif — surveillance mensuelle GEODNET, WeatherXM, Centipede</div>
-      <div class="item-desc">Roadmap hardware, token unlock, annonces capteurs non-GNSS.</div>
-      <span class="tag tag-gray">Veille</span>
-    </div>
-    <div class="item">
-      <div class="item-title">Communication — post "souverainete donnees atmos europeennes"</div>
-      <div class="item-desc">LinkedIn / Substack en reaction a l'EU Space Act. Capter le momentum.</div>
-      <span class="tag tag-blue">Comm</span>
-    </div>
-  </div>
+<div class="item">
+<div class="item-title">Meyrargues — 7 680 m²</div>
+<strong>Bordure nationale</strong>, 2 bâtiments (1 774 m²) + parking photovoltaïque<br>
+<strong>Prix</strong> : 1 260 000 €<br>
+<a href="https://www.bureauxlocaux.com/annonce/investissement-terrain-a-vendre-avec-pc--40126918" target="_blank">🔗 Annonce directe</a>
 </div>
 
-<!-- =========== TAB : WEBINAIRES =========== -->
-<div class="tab-content" data-tab="webinaires">
-  <h2 class="section-title">Webinaires & Evenements — 20 avril 2026</h2>
-
-  <h3 class="category-title">Webinaires en ligne (20 avril - 11 mai 2026)</h3>
-  <div class="card">
-    <div class="item">
-      <div class="item-title">🎯 Bpifrance Creation — Etude de marche a l'ere de l'IA</div>
-      <div class="item-desc"><strong>Jeudi 23 avril 2026, 11h</strong>. Gratuit, 60 min. Utile pour Anthony et ses prospects entrepreneurs.</div>
-      <span class="tag tag-red">Prio</span><span class="tag tag-green">Gratuit</span>
-    </div>
-    <div class="item">
-      <div class="item-title">🎯 CMA / Livestorm — IA pour l'activite artisanale</div>
-      <div class="item-desc"><strong>Lundi 4 mai 2026, 12h15</strong>. Gratuit. Public artisans — a croiser avec les cibles formation.</div>
-      <span class="tag tag-green">Gratuit</span>
-    </div>
-    <div class="item">
-      <div class="item-title">🎯 IFEC — Parcours IA #1 : les outils qui changent tout</div>
-      <div class="item-desc"><strong>Lundi 4 mai 2026, 11h30</strong>. Gratuit. Public expertise-comptable / finance.</div>
-      <span class="tag tag-green">Gratuit</span>
-    </div>
-    <div class="item">
-      <div class="item-title">Serie Webikeo — IA agentique et experience client 2026</div>
-      <div class="item-desc">Webinaires recurrents / replays disponibles. Thematique alignee avec les agents IA.</div>
-      <span class="tag tag-blue">Replay</span>
-    </div>
-  </div>
-
-  <h3 class="category-title">Evenements presentiels / Conferences</h3>
-  <div class="card">
-    <div class="item">
-      <div class="item-title">ICL-GNSS 2026 (IEEE, Grenade)</div>
-      <div class="item-desc"><strong>Jeudi 8 mai 2026</strong>. Pertinent pour GNSS / RTK / Space Data.</div>
-      <span class="tag tag-purple">Conference</span>
-    </div>
-    <div class="item">
-      <div class="item-title">🔥 Printemps de l'IA national</div>
-      <div class="item-desc"><strong>15-24 mai 2026</strong>. Chevauche la fin de fenetre — bloquer des creneaux des maintenant.</div>
-      <span class="tag tag-red">Agenda</span>
-    </div>
-    <div class="item">
-      <div class="item-title">🎯 MarsAI Festival Marseille</div>
-      <div class="item-desc"><strong>19 juin 2026</strong>. Premier festival IA + audiovisuel de Marseille. <strong>A bloquer</strong>.</div>
-      <a href="https://lafrenchtech-aixmarseille.fr/agenda/festival-marsai/" target="_blank" rel="noopener">Festival MarsAI →</a>
-      <span class="tag tag-red">Agenda prio</span>
-    </div>
-    <div class="item">
-      <div class="item-title">🎯 Village Startup Delta Festival Marseille</div>
-      <div class="item-desc"><strong>23-26 juillet 2026</strong>, plage du Prado. 100 startups FR/international.</div>
-      <a href="https://lafrenchtech-aixmarseille.fr/agenda/village-startup-delta-festival/" target="_blank" rel="noopener">Village Startup Delta →</a>
-      <span class="tag tag-red">Agenda prio</span>
-    </div>
-    <div class="item">
-      <div class="item-title">AIM 2026 & Business Meetings WAICF 2026 (French Tech Aix-Marseille)</div>
-      <div class="item-desc">A bloquer dans l'agenda plus tard. Dates precises a confirmer.</div>
-      <a href="https://lafrenchtech-aixmarseille.fr/agendas/" target="_blank" rel="noopener">Agendas French Tech AM →</a>
-      <span class="tag tag-orange">A confirmer</span>
-    </div>
-    <div class="item">
-      <div class="item-title">Process Mining Camp — premiere edition Marseille 2026</div>
-      <div class="item-desc">Edition locale du Process Mining Camp. A suivre.</div>
-      <span class="tag tag-blue">Local PACA</span>
-    </div>
-  </div>
-
-  <h3 class="category-title">Evenements passes mais cibles prospection identifiees</h3>
-  <div class="card">
-    <div class="item">
-      <div class="item-title">Paris Blockchain Week (15-16 avril), GenAI Summit (10 avril), Viving Marseille (10-12 avril), Parlons IA (9 avril)</div>
-      <div class="item-desc">Liste exposants / speakers a reconstituer pour prospection differee.</div>
-      <span class="tag tag-gray">Archive</span>
-    </div>
-    <div class="item">
-      <div class="item-title">Epitech SUMMIT Marseille (3-4 fev 2026, passe)</div>
-      <div class="item-desc">Prendre contact avec les exposants pour l'edition 2027.</div>
-      <span class="tag tag-gray">Prospection 2027</span>
-    </div>
-  </div>
-
-  <div class="footnote">Note : pour le local PACA (Meetup IA Aix-Marseille, MASSIL.IA, French Tech, CCIAMP), les dates precises sont generalement publiees a J-10. Consultation hebdomadaire recommandee. Pour les webinaires Webikeo a diffusion recurrente, dates exactes non inventees — mention "session recurrente / replay disponible" utilisee.</div>
+<div class="item">
+<div class="item-title">Aix-en-Provence — 9 000 m²</div>
+<strong>Zone 2AUE</strong> — foncier aménageable avec bâti existant 100 m²<br>
+<strong>Prix</strong> : 1 485 000 €<br>
+<a href="https://www.bureauxlocaux.com/annonce/terrain-a-vendre--38593425" target="_blank">🔗 Annonce directe</a>
 </div>
 
-<!-- =========== TAB : ACTIONS =========== -->
-<div class="tab-content" data-tab="actions">
-  <h2 class="section-title">Actions — Lundi 20 avril 2026</h2>
+<div class="cat-header"><h3>🟢 Var (83) — VENTE</h3></div>
 
-  <h3 class="category-title">Space Data</h3>
-  <div class="card">
-    <label class="checkbox-item"><input type="checkbox" data-key="a20-sd-01"><span class="cb-text">Telecharger le draft RFP NOAA SBEM IDIQ sur SAM.gov et evaluer l'eligibilite Space Data (directe ou prime US).</span></label>
-    <label class="checkbox-item"><input type="checkbox" data-key="a20-sd-02"><span class="cb-text">Call de prospection avec PlanetiQ ou un integrateur americain pour sous-traitance.</span></label>
-    <label class="checkbox-item"><input type="checkbox" data-key="a20-sd-03"><span class="cb-text">One-pager "Space Data vs weather DePIN" — differenciation profils verticaux, metrologie, clients institutionnels.</span></label>
-    <label class="checkbox-item"><input type="checkbox" data-key="a20-sd-04"><span class="cb-text">Contacter Meteo-France (DSI Donnees / Climatologie) pour se positionner en partenaire prive du COP 2022-2026.</span></label>
-    <label class="checkbox-item"><input type="checkbox" data-key="a20-sd-05"><span class="cb-text">Post LinkedIn / Substack "Souverainete des donnees atmospheriques europeennes" en reaction a l'EU Space Act.</span></label>
-    <label class="checkbox-item"><input type="checkbox" data-key="a20-sd-06"><span class="cb-text">Lancer etude de faisabilite migration u-blox F9P -> ZED-X20 (cible BOM -15 a -25%).</span></label>
-  </div>
-
-  <h3 class="category-title">Selfstock</h3>
-  <div class="card">
-    <label class="checkbox-item"><input type="checkbox" data-key="a20-ss-01"><span class="cb-text">Qualifier les 4 nouvelles annonces (Hyeres 1 600 m², Avignon 29 500 m², La Valette 4 275 m², Toulon 4 560 m²) — contact agence pour prix/dispo/zonage.</span></label>
-    <label class="checkbox-item"><input type="checkbox" data-key="a20-ss-02"><span class="cb-text">Prospection directe intercommunalites 04, 05, 06 (Dignois, Manosque, Briancon, Gap, CCI Nice).</span></label>
-    <label class="checkbox-item"><input type="checkbox" data-key="a20-ss-03"><span class="cb-text">Integrer l'angle "IA operations" (pricing dynamique, maintenance predictive) au pitch Selfstock.</span></label>
-    <label class="checkbox-item"><input type="checkbox" data-key="a20-ss-04"><span class="cb-text">Maintenir la veille hebdo BureauxLocaux / leboncoin Pro / SeLoger B&C.</span></label>
-  </div>
-
-  <h3 class="category-title">Formation IA</h3>
-  <div class="card">
-    <label class="checkbox-item"><input type="checkbox" data-key="a20-fo-01"><span class="cb-text">PRIORITE ABSOLUE : verifier statut Qualiopi. Si pas encore certifie, lancer la demarche cette semaine.</span></label>
-    <label class="checkbox-item"><input type="checkbox" data-key="a20-fo-02"><span class="cb-text">Creer le pack "AI Act Starter 2h" avec attestation — tarif d'appel, cible PME 10-250.</span></label>
-    <label class="checkbox-item"><input type="checkbox" data-key="a20-fo-03"><span class="cb-text">S'inscrire a la certification Claude Certified Architect, Foundations (99 $) sur anthropic.skilljar.com.</span></label>
-    <label class="checkbox-item"><input type="checkbox" data-key="a20-fo-04"><span class="cb-text">Contacter la Region Sud pour se referencer en prestataire aval de "Mon Assistant IA".</span></label>
-    <label class="checkbox-item"><input type="checkbox" data-key="a20-fo-05"><span class="cb-text">Bloquer l'agenda : MarsAI Festival (19 juin) + Village Startup Delta (23-26 juillet).</span></label>
-    <label class="checkbox-item"><input type="checkbox" data-key="a20-fo-06"><span class="cb-text">Enquete tarifaire mysterieuse : demander des devis a SavoirIA, Mister IA, EIYU (PME 20 salaries, 2 jours intra).</span></label>
-    <label class="checkbox-item"><input type="checkbox" data-key="a20-fo-07"><span class="cb-text">Preparer l'argumentaire "reste a charge 150 € CPF" pour tous les devis CPF en cours.</span></label>
-  </div>
-
-  <h3 class="category-title">Data Center</h3>
-  <div class="card">
-    <label class="checkbox-item"><input type="checkbox" data-key="a20-dc-01"><span class="cb-text">Contacter Megane Colas (04 65 84 01 52) pour obtenir la fiche commerciale Thaon-les-Vosges 40 ha (400 kV + 63 kV).</span></label>
-    <label class="checkbox-item"><input type="checkbox" data-key="a20-dc-02"><span class="cb-text">Contacter Datalok (contact@datalok.io) pour la fiche VT-2025-001 (12 ha / 150 MW / 16 M€ total).</span></label>
-    <label class="checkbox-item"><input type="checkbox" data-key="a20-dc-03"><span class="cb-text">Etudier les AMI ouverts : Dunkerque (GPM), Loire-sur-Rhone (EDF), Bosquel (ZAC).</span></label>
-    <label class="checkbox-item"><input type="checkbox" data-key="a20-dc-04"><span class="cb-text">Se positionner comme intermediaire / conseil sur la reconversion mining -> HPC pour les petits operateurs francais.</span></label>
-    <label class="checkbox-item"><input type="checkbox" data-key="a20-dc-05"><span class="cb-text">Surveiller fermetures Michelin (Vannes, Cholet), Sanofi (Maisons-Alfort, Amilly), Condat, Cordemais pour reconversion future.</span></label>
-  </div>
-
-  <h3 class="category-title">Personnel</h3>
-  <div class="card">
-    <label class="checkbox-item"><input type="checkbox" data-key="a20-pe-01"><span class="cb-text">Dossier banque secondaire — finaliser les documents manquants.</span></label>
-    <label class="checkbox-item"><input type="checkbox" data-key="a20-pe-02"><span class="cb-text">Synchroniser la liste de diffusion newsletter IA hebdo avec les contacts captures aux derniers evenements.</span></label>
-    <label class="checkbox-item"><input type="checkbox" data-key="a20-pe-03"><span class="cb-text">Sport / hygiene de vie : bloquer 3 creneaux cette semaine.</span></label>
-  </div>
+<div class="item">
+<div class="item-title">Vidauban — 13 620 m² · <span class="priority-star">★★★★★ TOP OPPORTUNITÉ</span></div>
+<strong>Adresse</strong> : Près sortie autoroute Le Luc, bordure N7, 83550 Vidauban<br>
+<strong>Prix</strong> : 1 650 000 € FAI (≈121 €/m²) · <strong>Usage</strong> : stockage, BTP, logistique, parking — petite maison 40 m² + eau/élec incluses<br>
+<strong>Taxe foncière</strong> : 5 160 €/an<br>
+<strong>Contact</strong> : Nicolas Valici, Baillet Immobilier — 07 49 92 27 12, nicolas@baillet.immo (réf 0485)<br>
+<a href="https://www.bureauxlocaux.com/annonce/a-vendre-terrain-de-13-620-m2-a-vidauban--36962968" target="_blank">🔗 Annonce directe</a>
 </div>
 
-</div> <!-- fin day-view 20 -->
-
-
-<!-- =========================================================
-     DAY VIEW : DIMANCHE 19 AVRIL 2026 (archive)
-     ========================================================= -->
-<div class="day-view" id="day-19">
-  <div class="tab-content active" data-tab="overview">
-    <h2 class="section-title">Archive — Dimanche 19 avril 2026</h2>
-    <div class="card alert-card info">
-      <div class="item">
-        <div class="item-title">Dashboard du dimanche 19 avril 2026</div>
-        <div class="item-desc">Veilles du 19 avril (Newsletter IA, Mining/Crypto, Formation IA, Terrains PACA, Space Data, Usines/Data Center). Contenu disponible dans l'historique Git du depot dashboard. Consulter <a href="https://github.com/anthonyciccomancini-netizen/dashboard/commits/main" target="_blank" rel="noopener">github.com/anthonyciccomancini-netizen/dashboard — historique</a> (commit 6347888 du 19 avril).</div>
-        <span class="tag tag-blue">Archive</span>
-      </div>
-      <div class="item">
-        <div class="item-title">KPIs au 19 avril</div>
-        <div class="item-desc">BTC $77 319 (+3,42% 24h) — ETH $2 424 (+3,89% 24h) — GEOD $0,1303 — 27 terrains PACA qualifies — AI Act H-105 jours.</div>
-      </div>
-    </div>
-  </div>
-  <div class="tab-content" data-tab="newsletter"><div class="empty-state"><h2>Archive 19 avril</h2><p>Contenu disponible dans l'historique Git.</p></div></div>
-  <div class="tab-content" data-tab="videos"><div class="empty-state"><h2>Archive 19 avril</h2><p>Contenu disponible dans l'historique Git.</p></div></div>
-  <div class="tab-content" data-tab="crypto"><div class="empty-state"><h2>Archive 19 avril</h2><p>Contenu disponible dans l'historique Git.</p></div></div>
-  <div class="tab-content" data-tab="formation"><div class="empty-state"><h2>Archive 19 avril</h2><p>Contenu disponible dans l'historique Git.</p></div></div>
-  <div class="tab-content" data-tab="terrains"><div class="empty-state"><h2>Archive 19 avril</h2><p>Contenu disponible dans l'historique Git.</p></div></div>
-  <div class="tab-content" data-tab="datacenter"><div class="empty-state"><h2>Archive 19 avril</h2><p>Contenu disponible dans l'historique Git.</p></div></div>
-  <div class="tab-content" data-tab="spacedata"><div class="empty-state"><h2>Archive 19 avril</h2><p>Contenu disponible dans l'historique Git.</p></div></div>
-  <div class="tab-content" data-tab="webinaires"><div class="empty-state"><h2>Archive 19 avril</h2><p>Contenu disponible dans l'historique Git.</p></div></div>
-  <div class="tab-content" data-tab="actions"><div class="empty-state"><h2>Archive 19 avril</h2><p>Contenu disponible dans l'historique Git.</p></div></div>
+<div class="item">
+<div class="item-title">Rocbaron — 3 248 m²</div>
+<strong>Adresse</strong> : 83136 Rocbaron (zone Uecb — 75 % emprise max, 9 m hauteur)<br>
+<strong>Prix</strong> : 924 680 € HT + 5 % honoraires · <strong>Activités</strong> : artisanales/commerciales, entrepôts, bureaux<br>
+<strong>Contact</strong> : Atrios Immobilier, La Valette-du-Var — 06.23.30.10.80 (réf VT2005RUBI)<br>
+<a href="https://www.bureauxlocaux.com/annonce/terrain-3248-m2--39502754" target="_blank">🔗 Annonce directe</a>
 </div>
 
-
-<!-- =========================================================
-     DAY VIEW : MARDI 14 AVRIL 2026 (archive)
-     ========================================================= -->
-<div class="day-view" id="day-14">
-  <div class="tab-content active" data-tab="overview">
-    <h2 class="section-title">Archive — Mardi 14 avril 2026</h2>
-    <div class="card alert-card info">
-      <div class="item">
-        <div class="item-title">Dashboard archive du 14 avril 2026</div>
-        <div class="item-desc">Veilles du 14 avril disponibles dans l'historique Git du depot dashboard. <a href="https://github.com/anthonyciccomancini-netizen/dashboard/commits/main" target="_blank" rel="noopener">github.com/anthonyciccomancini-netizen/dashboard — historique</a>.</div>
-        <span class="tag tag-blue">Archive</span>
-      </div>
-      <div class="item">
-        <div class="item-title">KPIs au 14 avril</div>
-        <div class="item-desc">BTC $74 415 (+4,70% 24h) — ETH $2 311 — GEOD $0,12 — 8 terrains PACA — AI Act J-110.</div>
-      </div>
-    </div>
-  </div>
-  <div class="tab-content" data-tab="newsletter"><div class="empty-state"><h2>Archive 14 avril</h2><p>Contenu disponible dans l'historique Git.</p></div></div>
-  <div class="tab-content" data-tab="videos"><div class="empty-state"><h2>Archive 14 avril</h2><p>Contenu disponible dans l'historique Git.</p></div></div>
-  <div class="tab-content" data-tab="crypto"><div class="empty-state"><h2>Archive 14 avril</h2><p>Contenu disponible dans l'historique Git.</p></div></div>
-  <div class="tab-content" data-tab="formation"><div class="empty-state"><h2>Archive 14 avril</h2><p>Contenu disponible dans l'historique Git.</p></div></div>
-  <div class="tab-content" data-tab="terrains"><div class="empty-state"><h2>Archive 14 avril</h2><p>Contenu disponible dans l'historique Git.</p></div></div>
-  <div class="tab-content" data-tab="datacenter"><div class="empty-state"><h2>Archive 14 avril</h2><p>Contenu disponible dans l'historique Git.</p></div></div>
-  <div class="tab-content" data-tab="spacedata"><div class="empty-state"><h2>Archive 14 avril</h2><p>Contenu disponible dans l'historique Git.</p></div></div>
-  <div class="tab-content" data-tab="webinaires"><div class="empty-state"><h2>Archive 14 avril</h2><p>Contenu disponible dans l'historique Git.</p></div></div>
-  <div class="tab-content" data-tab="actions"><div class="empty-state"><h2>Archive 14 avril</h2><p>Contenu disponible dans l'historique Git.</p></div></div>
+<div class="item">
+<div class="item-title">Cogolin — 750 m²</div>
+<strong>Adresse</strong> : 83310 Cogolin, terrain commercial<br>
+<strong>Prix</strong> : 583 000 € (honoraires 6 % inclus)<br>
+<strong>Contact</strong> : Cyril Huet (Propriétés-Privées) — 07 69 93 65 21 (réf 430324B-HTC)<br>
+<a href="https://www.bureauxlocaux.com/annonce/cogolin-terrain-commercial-760-m2--39965243" target="_blank">🔗 Annonce directe</a>
 </div>
 
-</div> <!-- fin content-wrap -->
+<div class="cat-header"><h3>🟢 Var (83) — LOCATION</h3></div>
+
+<div class="item">
+<div class="item-title">Signes — 3 000 m² (ZA de Signes)</div>
+<strong>Loyer</strong> : 6 000 €/mois HT-HC (24 €/m²/an) — bail 3/6/9 · terrain nu plat, accès PL<br>
+<strong>Contact</strong> : Anaïs Rousseau, Red Groupe — 07 69 61 45 45 (réf AR108-REDGROUPE)<br>
+<a href="https://www.bureauxlocaux.com/annonce/location-terrain-signes-83870--36977842" target="_blank">🔗 Annonce directe</a>
+</div>
+
+<div class="item">
+<div class="item-title">Signes — 2 000 m² (ZA de Signes — 2e lot)</div>
+<strong>Loyer</strong> : 4 000 €/mois HT · terrain nu plat, accès PL<br>
+<a href="https://www.bureauxlocaux.com/annonce/location-terrain--36984794" target="_blank">🔗 Annonce directe</a>
+</div>
+
+<div class="item">
+<div class="item-title">Cogolin — 2 500 m²</div>
+<strong>Proche RD 98</strong> · <strong>Loyer</strong> : 1 950 €/mois HT<br>
+<a href="https://www.bureauxlocaux.com/annonce/cogolin-terrain-location-commerciale-2500-m2--40156702" target="_blank">🔗 Annonce directe</a>
+</div>
+
+<div class="item">
+<div class="item-title">Le Luc — 1 916 m²</div>
+<strong>Zone activité commerciale</strong>, terrain à construire (bail à construction possible)<br>
+<strong>Loyer</strong> : 8 335 €/mois — Contact : Scamac Immo<br>
+<a href="https://www.bureauxlocaux.com/annonce/terrain-de-1916m2--39612254" target="_blank">🔗 Annonce directe</a>
+</div>
+
+<div class="cat-header"><h3>🟡 Alpes-Maritimes (06) — LOCATION</h3></div>
+
+<div class="item">
+<div class="item-title">Le Broc — 8 000 m² · <span class="priority-star">★★★★★</span></div>
+<strong>Adresse</strong> : Zone d'activité du Broc, 06510 — divisible<br>
+<strong>Loyer</strong> : 10 000 €/mois HT-HC (15 €/m²/an) · Bail civil 12 mois — dépôt 2 mois<br>
+<strong>Contact</strong> : ACE Immobilier d'Entreprise, Nice (réf 06_13681)<br>
+<a href="https://www.bureauxlocaux.com/annonce/terrain-a-louer--39077566" target="_blank">🔗 Annonce directe</a>
+</div>
+
+<div class="item">
+<div class="item-title">Carros — 1 600 m² (terrain 1 350 + hangar 250)</div>
+<strong>Adresse</strong> : ZI de Carros, 06510 · <strong>Loyer</strong> : 4 895 €/mois HT-HC (37 €/m²/an)<br>
+<strong>Accès PL, terrain clos et plat</strong><br>
+<strong>Contact</strong> : Locopro Entreprises, Valbonne (réf 06_3511)<br>
+<a href="https://www.bureauxlocaux.com/annonce/a-louer-terrain-et-entrepot-1600-m2-carros--38400228" target="_blank">🔗 Annonce directe</a>
+</div>
+
+<div class="item">
+<div class="item-title">Gattières — 1 700 m²</div>
+<strong>Adresse</strong> : Route de la Baronne, 06510 · <strong>Loyer</strong> : 3 117 €/mois HT-HC (22 €/m²/an)<br>
+<strong>Eau/élec/accès PL</strong><br>
+<strong>Contact</strong> : Locopro Entreprises (réf 06_3532)<br>
+<a href="https://www.bureauxlocaux.com/annonce/a-louer-terrain-1700-m2-gattieres--38651928" target="_blank">🔗 Annonce directe</a>
+</div>
+
+<div class="item">
+<div class="item-title">Cagnes-sur-Mer — 1 100 m²</div>
+<strong>Adresse</strong> : Avenue de la Santoline, 06800 · <strong>Loyer</strong> : 2 500 €/mois (27 €/m²/an)<br>
+<strong>Barrière électrique, vidéosurveillance, sol stabilisé</strong><br>
+<strong>Contact</strong> : Locopro Entreprises (réf 06_3682)<br>
+<a href="https://www.bureauxlocaux.com/annonce/a-louer-terrain-1-100-m2-cagnes-sur-mer--39687653" target="_blank">🔗 Annonce directe</a>
+</div>
+
+<div class="cat-header"><h3>🟠 Vaucluse (84)</h3></div>
+
+<div class="item">
+<div class="item-title">Le Pontet — 25 000 m² (LOCATION)</div>
+<strong>ZAC sortie A7</strong> · <strong>Loyer</strong> : 37 500 €/mois (bail à construction 18 €/m²/an)<br>
+<a href="https://www.bureauxlocaux.com/annonce/terrain-constructible-en-zac--39868123" target="_blank">🔗 Annonce directe</a>
+</div>
+
+<div class="item">
+<div class="item-title">Carpentras — 7 550 m² (LOCATION)</div>
+<strong>Zone UE mixte comm/artisanale</strong>, divisible, emprise 80 %, H 20 m<br>
+<strong>Loyer</strong> : 9 060 €/mois (14 €/m²/an)<br>
+<a href="https://www.bureauxlocaux.com/annonce/terrain-a-louer--39527820" target="_blank">🔗 Annonce directe</a>
+</div>
+
+<div class="cat-header"><h3>⚪ 04 & 05</h3></div>
+<p>Aucune annonce vérifiée de terrain industriel/activité à vendre au 22 avril 2026 sur bureauxlocaux.com. Continuer la veille hebdo.<br>
+<a href="https://www.bureauxlocaux.com/immobilier-d-entreprise/annonces/alpes-de-haute-provence-04/vente-terrains" target="_blank">🔗 Index 04</a> · <a href="https://www.bureauxlocaux.com/immobilier-d-entreprise/annonces/hautes-alpes-05/vente-terrains" target="_blank">🔗 Index 05</a></p>
+
+<h3>🎯 TOP 5 Selfstock (auto-stockage conteneurs)</h3>
+<ol>
+<li><strong>Vidauban (83) VENTE</strong> — 13 620 m² à 1,65 M€, zone compatible, accès autoroute</li>
+<li><strong>Le Broc (06) LOCATION</strong> — 8 000 m² divisibles à 10 000 €/mois, ZA</li>
+<li><strong>Salon-de-Provence (13) VENTE</strong> — 4 062 m² avec PC purgé, ZA Gandonne</li>
+<li><strong>Le Pontet (84) LOCATION</strong> — 25 000 m² sortie A7, bail à construction</li>
+<li><strong>Fos-sur-Mer (13) VENTE</strong> — 6 870 m² à 620 k€ (≈90 €/m²), zone métropolitaine</li>
+</ol>
+
+<hr class="section-sep">
+
+<!-- 7. DATA CENTER -->
+<h2>⚡ 7. Usines / Data Center France 1MW+</h2>
+
+<div class="cat-header"><h3>🟢 Priorité 1 — Sites avec puissance élevée confirmée</h3></div>
+
+<div class="item">
+<div class="item-title">Blendecques (62) — 43 490 m² bâtis sur 23 ha · <span class="priority-star">★★★★★ MEILLEURE OPPORTUNITÉ FRANCE</span></div>
+<strong>Type</strong> : Ancienne cartonnerie · <strong>Surface</strong> : 43 490 m² (dont 12 000 m² entrepôt neuf)<br>
+<strong>Puissance</strong> : 8,3 MW actuels, admissible 20 MVA · <strong>Gaz</strong> : 200 000 MWh/an<br>
+<strong>Prix</strong> : 5 000 000 € net vendeur · <strong>Taxe foncière</strong> : 115 000 €/an<br>
+<strong>Hauteur</strong> : 7–22 m · <strong>Ponts roulants</strong> : 12 et 15 T · <strong>Accès</strong> : A26, voie ferrée possible<br>
+<strong>Agence</strong> : IMMPROVE Industrie & Logistique (Paris 8e) — réf 13692550-0001V<br>
+<a href="https://www.bureauxlocaux.com/annonce/vente-entrepot-blendecques-62575--38718522" target="_blank">🔗 Annonce directe</a>
+</div>
+
+<div class="item">
+<div class="item-title">Vimy (62) — 25 552 m² bâtis sur 11,3 ha</div>
+<strong>Type</strong> : Plateforme activité/entrepôt (1990) · <strong>Puissance</strong> : 1 000 kVA<br>
+<strong>Prix</strong> : 12 500 000 € · 4 cellules, 56 quais, H/bac 9,7 m, ICPE 1510 E<br>
+<strong>Accès</strong> : 7 km sud de Lens, N17/A26 · <strong>Agence</strong> : DATA IMMO<br>
+<a href="https://www.bureauxlocaux.com/annonce/local-industrielentrepot--39206838" target="_blank">🔗 Annonce directe</a>
+</div>
+
+<div class="cat-header"><h3>🟡 Priorité 2 — Grandes friches France 2030</h3></div>
+
+<div class="item">
+<div class="item-title">Laudun-l'Ardoise (30) — ex-ArcelorMittal · 48 ha</div>
+<strong>Friche sidérurgique</strong> (35 ha d'un tenant + 13 ha voies ferrées) · <strong>Statut</strong> : Site clé en main France 2030<br>
+<strong>Accès</strong> : A9, Rhône, fer · Contact : Geolink Expansion (Lattes) — 01 85 53 83 12<br>
+<strong>Note</strong> : Projet SAF+ déjà identifié, concurrence potentielle<br>
+<a href="https://www.geolocaux.com/annonce/friche-industrielle-a-vendre-laudun-l-ardoise-a9-et-reseaux-regionaux-576219.html" target="_blank">🔗 Geolocaux</a> · <a href="https://www.gardrhodanien.fr/lagglo/grands-projets/lardoise-site-cle-en-main-france-2030-appel-a-projets/" target="_blank">🔗 AP officiel</a>
+</div>
+
+<div class="item">
+<div class="item-title">Unieux/Firminy (42) — ex-Aperam/Creusot Loire · 5–6 ha</div>
+<strong>Ancien sidérurgique</strong> · Site clé en main France 2030 · Dépollution EPORA jusque juillet 2025, budget ~5 M€<br>
+<strong>Contact</strong> : Saint-Étienne Métropole / EPORA<br>
+<a href="https://mesinfos.fr/42240-unieux/unieux-un-foncier-industriel-de-6-hectares-a-vendre-dans-londaine-198251.html" target="_blank">🔗 ESSOR Loire</a> · <a href="https://www.epora.fr/rapports-activite/2023/accompagner-les-territoires/axe-2-ppi-2021-2025-favoriser-la-vitalite-economique/site-aperam-unieux-42/" target="_blank">🔗 EPORA</a>
+</div>
+
+<div class="item">
+<div class="item-title">Étupes/Belfort Sud (90) — 85 ha divisibles</div>
+<strong>Infrastructures</strong> : eau, gaz, boucle électrique, fibre · <strong>Prix</strong> : 14 €/m² TTC<br>
+<strong>Accès</strong> : A36 à 2 min, TGV Belfort-Montbéliard 15 km<br>
+<strong>Contact</strong> : Meena WEIGEL — Geolink Expansion — 04 65 84 01 52<br>
+<a href="https://immo-hub.org/terrains-et-locaux-d-activites/terrain-industriel-a-vendre-belfort-sud-bourgogne-franche-comte-85-ha-divisibles" target="_blank">🔗 Immo-HUB</a>
+</div>
+
+<div class="cat-header"><h3>🟢 AMI EDF — appels à manifestation d'intérêt</h3></div>
+
+<div class="item">
+<div class="item-title">Loire-sur-Rhône (69) — ex-centrale thermique EDF · 60 ha <span class="priority-star">★★★★★</span></div>
+<strong>Puissance visée</strong> : data center > 50 MW · <strong>Statut</strong> : AMI lancé 22/12/2025, deadline 19/01/2026 passée, sélection lauréat <strong>avril 2026</strong><br>
+<strong>Distance Lyon</strong> : <30 km · EDF prévoit 6 AMI au total — se positionner pour les prochains<br>
+<a href="https://www.brefeco.com/actualite/logiciels-services-numeriques/edf-lance-un-ami-pour-implanter-un-data-center-sur-lancienne" target="_blank">🔗 Bref Eco</a> · <a href="https://www.edf.fr/en/the-edf-group/supporting-our-clients/ami-data-centers" target="_blank">🔗 Page AMI EDF</a>
+</div>
+
+<div class="item">
+<div class="item-title">Grand Port Maritime de Dunkerque (59) — 21 ha · <span class="priority-star">★★★★★</span></div>
+<strong>Puissance</strong> : 400 à 700 MW (attestation RTE 700 MW) · <strong>Statut</strong> : AMI début 2026, résultat "dans quelques mois"<br>
+<a href="https://dcmag.fr/le-grand-port-maritime-de-dunkerque-lance-un-ami-pour-un-datacenter-entre-400-et-700-mw/" target="_blank">🔗 DCmag</a>
+</div>
+
+<h3>🗺️ Cartes RTE / Enedis (outils officiels)</h3>
+<ul>
+<li><a href="https://www.capareseau.fr" target="_blank">Caparéseau — Carte RTE/Enedis des capacités d'accueil</a> (référence capacités raccordement)</li>
+<li><a href="https://www.services-rte.com/fr/visualisez-les-donnees-du-reseau.html" target="_blank">RTE — visualiser les données du réseau</a></li>
+<li><a href="https://data.enedis.fr/pages/cartographie/" target="_blank">Enedis — cartographie</a></li>
+<li><a href="https://cartofriches.cerema.fr/cartofriches/" target="_blank">Cartofriches Cerema</a> — >14 300 sites répertoriés</li>
+<li><a href="https://www.services-rte.com/fr/actualites/validation-de-nouvelles-zones-de-mutualisation-au-havre-dunkerque-et-plan-de-campagne.html" target="_blank">RTE — zones mutualisation validées</a> : Dunkerque, Le Havre, <strong>Plan de Campagne (PACA)</strong> — 7 000 MW à 2030</li>
+<li><a href="https://dcmag.fr/la-carte-regionale-des-35-sites-de-data-centers-dedies-a-lia-identifies-par-le-gouvernement/" target="_blank">DCmag — carte 35 sites DC IA gouvernementaux</a></li>
+</ul>
+
+<h3>📰 Actualités marché — sites déjà attribués (concurrence)</h3>
+<table>
+<tr><th>Site</th><th>Ville</th><th>Repreneur</th><th>Puissance</th><th>Montant</th></tr>
+<tr><td>Ex-Usinor Les Soufflantes</td><td>Escaudain (59) — 38 ha</td><td>Data4 (Brookfield) + BT Immo</td><td>700 MW</td><td>5 Mds €, MES 2030</td></tr>
+<tr><td>Ex-Bridgestone</td><td>Béthune (62)</td><td>Nebius</td><td>240 MW</td><td>Opérationnel fin 2026</td></tr>
+<tr><td>Ex-Arjowiggins</td><td>Bessé-sur-Braye (72)</td><td>Eclairion</td><td>120 MW</td><td>600 M€, livraison 2028</td></tr>
+<tr><td>Ex-EDF La Maxe</td><td>La Maxe (57)</td><td>Eclairion</td><td>&gt; 500 MW</td><td>Cible 2034</td></tr>
+<tr><td>Ex-EDF Montereau</td><td>Montereau-Vallée-de-la-Seine (77)</td><td>OpCore</td><td>&gt; plusieurs centaines MW</td><td>4 Mds € négo exclusive</td></tr>
+<tr><td>ZAC des Bordes</td><td>Fouju (77)</td><td>Campus MGX/Mistral/Nvidia/Bpifrance</td><td>1,4 GW</td><td>8,5 Mds €, 2028–2030</td></tr>
+</table>
+
+<hr class="section-sep">
+
+<!-- 8. SPACE DATA -->
+<h2>📡 8. Space Data</h2>
+
+<div class="kpi-grid">
+<div class="kpi"><div class="kpi-label">GEOD prix</div><div class="kpi-value">0,12 $</div><div class="kpi-change down">▼ –14 % (7j)</div></div>
+<div class="kpi"><div class="kpi-label">Market cap</div><div class="kpi-value">51,9 M$</div><div class="kpi-change neutral">Rang #462 CG</div></div>
+<div class="kpi"><div class="kpi-label">Stations GEODNET</div><div class="kpi-value">20 500+</div><div class="kpi-change up">▲ +18 %/mois</div></div>
+<div class="kpi"><div class="kpi-label">Revenu annualisé</div><div class="kpi-value">5–6 M$</div><div class="kpi-change up">▲ accélération</div></div>
+<div class="kpi"><div class="kpi-label">Burn Q1 2026</div><div class="kpi-value">1,7 M$</div><div class="kpi-change up">▲ 82 % émissions</div></div>
+<div class="kpi"><div class="kpi-label">Marché GeoAI 2026</div><div class="kpi-value">35,5 Mds $</div><div class="kpi-change up">→ 828 Mds $ en 2034</div></div>
+</div>
+
+<h3>🏢 Concurrents — métriques clés</h3>
+<table>
+<tr><th>Acteur</th><th>Prix standard</th><th>Modèle</th><th>Stations</th><th>Note</th></tr>
+<tr><td>RTKdata</td><td>40 $/mois · 400 $/an</td><td>Abonnement</td><td>n.c.</td><td>Benchmark mondial prix</td></tr>
+<tr><td>ROCK Robotic</td><td>40 $/mois</td><td>Abonnement</td><td>n.c.</td><td>Orienté drones</td></tr>
+<tr><td>u-blox PointPerfect Flex</td><td>Pay-per-use horaire</td><td>Sans engagement</td><td>Réseau global</td><td>Rupture modèle</td></tr>
+<tr><td>GEODNET</td><td>Variable (via partners)</td><td>DePIN Solana</td><td>20 500+</td><td>Réseau décentralisé</td></tr>
+<tr><td>Trimble/Topcon</td><td>800–2 000 €/an</td><td>Abonnement pro</td><td>Proprio</td><td>BTP/agri premium</td></tr>
+</table>
+
+<h3>💡 Opportunités Space Data</h3>
+<ul>
+<li><strong>Cartographier les "zones blanches" France</strong> pour déploiement stations avant saturation — prime aux hôtes encore active</li>
+<li><strong>Revente d'abonnements RTK</strong> aux ETA et coopératives françaises (cible la plus rentable)</li>
+<li><strong>Bundle corrections RTK + données atmosphériques</strong> (vapeur d'eau, ionosphère améliorent la qualité) — différenciation vs RTKdata, ROCK, u-blox</li>
+<li><strong>Pricing agressif 40 €/mois</strong> — aligner sur benchmark mondial pour attirer indépendants (géomètres, agri-entrepreneurs, pilotes drones)</li>
+<li><strong>Label "corrections RTK souveraines européennes"</strong> — contre mouvement NDAA US, opportunité de positionnement</li>
+<li><strong>Partenariat GEODASH Aerosystems</strong> — devenir revendeur/intégrateur France drones agricoles</li>
+<li><strong>Hedging GEOD</strong> — convertir partie en fiat pour lisser trésorerie, conserver position longue 2026–2027</li>
+<li><strong>Pitch B2B agriculture</strong> — cible ETA + coopératives (abonnements annuels, volume)</li>
+</ul>
+
+<h3>🔔 Actualités semaine</h3>
+<ul>
+<li><strong>u-blox</strong> ouvre (21 avril 2026) son réseau RTK test à Taïwan via PointPerfect Flex</li>
+<li><strong>Intégration LEO-PNT</strong> via satellites Celeste de l'ESA (lancement 28 mars) — NAVISP Element 2</li>
+<li><strong>ANELLO Aerial INS CES 2026</strong> — SiPhOG + GNSS intégré</li>
+<li><strong>ARK Electronics NDAA modules</strong> — enjeu souveraineté US/Chine</li>
+<li><strong>GIP-7 voté</strong> — gouvernance GEODNET renforcée</li>
+<li><strong>Publication méthode GNSS-only</strong> (filtre particulaire Rao-Blackwellized) — sub-métrique en canyon urbain sans résolution ambiguïté</li>
+</ul>
+
+<hr class="section-sep">
+
+<!-- 9. WEBINAIRES ET EVENEMENTS -->
+<h2>📅 9. Webinaires & Événements</h2>
+
+<div class="cat-header"><h3>💻 Webinaires en ligne</h3></div>
+
+<div class="item">
+<div class="item-title">Jeu. 23 avril 2026, 11h — Bpifrance Création : "Étude de marché à l'ère de l'IA"</div>
+Webinaire gratuit, 60 min. <span class="tag">IA TPE/PME</span><br>
+<a href="https://bpifrance-creation.fr/" target="_blank">🔗 Bpifrance Création</a>
+</div>
+
+<div class="item">
+<div class="item-title">Lun. 4 mai 2026, 11h30 — IFEC : "Parcours IA #1 — Les outils qui changent tout"</div>
+Webinaire gratuit pour experts-comptables/formateurs. <span class="tag">Formation</span><br>
+<a href="https://www.ifec.fr/" target="_blank">🔗 IFEC</a>
+</div>
+
+<div class="item">
+<div class="item-title">Lun. 4 mai 2026, 12h15 — CMA / Livestorm : "IA pour l'activité artisanale"</div>
+Gratuit, cible TPE artisanat. Très actionnable pour prospection.<br>
+<a href="https://livestorm.co/" target="_blank">🔗 Livestorm</a>
+</div>
+
+<div class="item">
+<div class="item-title">Sem. 18 mai 2026 — MOOC IA & RH par Unow (relance)</div>
+Gratuit et certifiant. Cible DRH. <span class="tag">Cible RH</span><br>
+<a href="https://www.unow.fr/c/ia/mooc-ia-rh" target="_blank">🔗 Unow</a>
+</div>
+
+<div class="item">
+<div class="item-title">Lun. 22 juin 2026 — CCI AMP : "Agents IA pour TPE/PME"</div>
+Webinaire CCI Marseille-Provence. Réseau PACA à exploiter.<br>
+<a href="https://formationpro.cciamp.com/" target="_blank">🔗 CCIAMP</a>
+</div>
+
+<div class="item">
+<div class="item-title">Séries Webikeo (replays disponibles)</div>
+"IA agentique et expérience client 2026", "Déploiement IA en entreprise 2026". Rattrapage en fenêtre 22 avril → 13 mai (creuse).<br>
+<a href="https://webikeo.fr/" target="_blank">🔗 Webikeo</a>
+</div>
+
+<div class="cat-header"><h3>🏢 Événements présentiels</h3></div>
+
+<div class="item">
+<div class="item-title">Lun. 19 mai 2026, 19h — Meetup IAAM #3 @ KlaniK (Marseille)</div>
+Talks IA agentique + Reinforcement Learning. <span class="tag">PACA</span> <span class="tag">Networking</span><br>
+<a href="https://www.meetup.com/fr-FR/intelligence-artificielle-aix-marseille/" target="_blank">🔗 Meetup IAAM</a>
+</div>
+
+<div class="item">
+<div class="item-title">15–24 mai 2026 — Semaine nationale de l'IA ("Printemps de l'IA")</div>
+Ateliers gratuits dans toute la France, forte présence PACA.<br>
+<a href="https://www.savoiria.fr/semaine-ia-2026-ateliers-gratuits/" target="_blank">🔗 Semaine IA</a>
+</div>
+
+<div class="item">
+<div class="item-title">Ven. 19 juin 2026 — MarsAI Festival (1ère édition, Marseille)</div>
+IA générative, conférences + workshops gratuits. Pitch comme speaker/animateur.<br>
+<a href="https://lafrenchtech-aixmarseille.fr/agenda/festival-marsai/" target="_blank">🔗 French Tech Aix-Marseille</a>
+</div>
+
+<div class="item">
+<div class="item-title">24–25 septembre 2026 — AIM (Artificial Intelligence Marseille)</div>
+Orange Vélodrome. Événement structurant écosystème PACA. Candidater intervenant/exposant maintenant.<br>
+<a href="https://aim-marseille.com/fr/" target="_blank">🔗 AIM</a>
+</div>
+
+<div class="cat-header"><h3>🎤 Conférences & salons</h3></div>
+
+<div class="item">
+<div class="item-title">Jeu. 8 mai 2026 — ICL-GNSS 2026 (Grenade, Espagne)</div>
+Conférence IEEE. Pertinent GNSS/RTK pour Space Data.<br>
+<a href="https://icl-gnss.org/" target="_blank">🔗 ICL-GNSS</a>
+</div>
+
+<div class="item">
+<div class="item-title">8–9 juillet 2026 — Raise Summit (Louvre, Paris)</div>
+Sommet IA premium. Networking corporate européen.<br>
+<a href="https://raisesummit.com/" target="_blank">🔗 Raise Summit</a>
+</div>
+
+<div class="item">
+<div class="item-title">15–16 septembre 2026 — Big Data & AI Paris</div>
+Le rendez-vous data/IA français. Palais des Congrès Paris.<br>
+<a href="https://www.bigdataparis.com/" target="_blank">🔗 Big Data & AI Paris</a>
+</div>
+
+<div class="item">
+<div class="item-title">18–19 novembre 2026 — Data Centre World Paris</div>
+Salon data center. Essentiel pour projet DC d'Anthony.<br>
+<a href="https://www.datacentreworld.fr/" target="_blank">🔗 Data Centre World</a>
+</div>
+
+<div class="item">
+<div class="item-title">Novembre 2026 — SIMI / MAPIC Cannes</div>
+Salon immobilier d'entreprise/commercial. Réseau foncier.<br>
+<a href="https://www.mapic.com/" target="_blank">🔗 MAPIC</a>
+</div>
+
+<hr class="section-sep">
+
+<!-- 10. ACTIONS -->
+<h2>✅ 10. Actions par catégorie</h2>
+<p class="section-subtitle">Checklist persistante (localStorage). Coche au fur et à mesure.</p>
+
+<h3>📡 Space Data</h3>
+<div id="todo-spacedata">
+<div class="checklist-item"><input type="checkbox" id="sd1"><label for="sd1">Convertir 20 % des GEOD en fiat pour lisser trésorerie (hedging volatilité –14 %)</label></div>
+<div class="checklist-item"><input type="checkbox" id="sd2"><label for="sd2">Cartographier zones blanches RTK France — prioriser départements sans station à 40 km</label></div>
+<div class="checklist-item"><input type="checkbox" id="sd3"><label for="sd3">Prise de contact GEODASH Aerosystems (Singapour) — positionner Space Data revendeur/intégrateur France</label></div>
+<div class="checklist-item"><input type="checkbox" id="sd4"><label for="sd4">Préparer pitch B2B ETA + coopératives agricoles PACA (abonnement annuel corrections RTK)</label></div>
+<div class="checklist-item"><input type="checkbox" id="sd5"><label for="sd5">Définir offre bundle : corrections RTK + données atmosphériques — tarif 40 €/mois</label></div>
+</div>
+
+<h3>🏗️ Selfstock</h3>
+<div id="todo-selfstock">
+<div class="checklist-item"><input type="checkbox" id="ss1"><label for="ss1">📞 Appeler Nicolas Valici (Baillet Immobilier) — Vidauban 13 620 m² — 07 49 92 27 12</label></div>
+<div class="checklist-item"><input type="checkbox" id="ss2"><label for="ss2">📞 Contacter ACE Immobilier d'Entreprise Nice — Le Broc 8 000 m² divisibles</label></div>
+<div class="checklist-item"><input type="checkbox" id="ss3"><label for="ss3">📞 Contacter Françoise Champain (Agence Étoile) — Salon-de-Provence ZA Gandonne</label></div>
+<div class="checklist-item"><input type="checkbox" id="ss4"><label for="ss4">Analyse comparative TOP 5 : coût/m², zonage PLU, compatibilité conteneurs, extension</label></div>
+<div class="checklist-item"><input type="checkbox" id="ss5"><label for="ss5">Étudier financement : LBO / crédit-bail / SCI — simuler sur TOP 3</label></div>
+</div>
+
+<h3>🎓 Formation IA</h3>
+<div id="todo-formation">
+<div class="checklist-item"><input type="checkbox" id="fi1"><label for="fi1">🚀 Démarrer Anthropic AI Fluency (2–3h) — ajouter badge LinkedIn vendredi</label></div>
+<div class="checklist-item"><input type="checkbox" id="fi2"><label for="fi2">Rédiger pitch "AI Act J–100" — envoyer cold email à 20 DRH PACA d'ici vendredi</label></div>
+<div class="checklist-item"><input type="checkbox" id="fi3"><label for="fi3">Candidater prestataire "Mon assistant IA" — Région Sud (direction économie/numérique)</label></div>
+<div class="checklist-item"><input type="checkbox" id="fi4"><label for="fi4">Candidater intervenant MarsAI Festival (19 juin) + AIM (24–25 sept.)</label></div>
+<div class="checklist-item"><input type="checkbox" id="fi5"><label for="fi5">Lancer démarche Qualiopi (goulot d'étranglement n°1 si pas encore certifié)</label></div>
+<div class="checklist-item"><input type="checkbox" id="fi6"><label for="fi6">Audit tarifaire vs concurrents PACA — cible 750–950 €/jour intra-entreprise</label></div>
+<div class="checklist-item"><input type="checkbox" id="fi7"><label for="fi7">Inscription Meetup "IA Aix Marseille" (#3 le 19 mai) + French Tech Aix Marseille</label></div>
+</div>
+
+<h3>⚡ Data Center</h3>
+<div id="todo-dc">
+<div class="checklist-item"><input type="checkbox" id="dc1"><label for="dc1">📞 Contact IMMPROVE Industrie & Logistique — Blendecques (62), réf 13692550-0001V</label></div>
+<div class="checklist-item"><input type="checkbox" id="dc2"><label for="dc2">Se positionner Direction Immobilière EDF pour prochains AMI (6 prévus au total)</label></div>
+<div class="checklist-item"><input type="checkbox" id="dc3"><label for="dc3">Contact EPORA + Saint-Étienne Métropole — Unieux/Firminy</label></div>
+<div class="checklist-item"><input type="checkbox" id="dc4"><label for="dc4">Contact Agglomération Gard Rhodanien — Laudun-l'Ardoise (AP ouvert)</label></div>
+<div class="checklist-item"><input type="checkbox" id="dc5"><label for="dc5">Abonnement Cartofriches + Caparéseau (veille automatisée)</label></div>
+<div class="checklist-item"><input type="checkbox" id="dc6"><label for="dc6">Suivre AMI Dunkerque — Grand Port Maritime (400–700 MW)</label></div>
+</div>
+
+<h3>👤 Personnel</h3>
+<div id="todo-perso">
+<div class="checklist-item"><input type="checkbox" id="p1"><label for="p1">Vérifier résultat AMI EDF Loire-sur-Rhône (sélection avril 2026)</label></div>
+<div class="checklist-item"><input type="checkbox" id="p2"><label for="p2">Planifier RDV banque — dossier crédit pour TOP 3 terrains Selfstock</label></div>
+<div class="checklist-item"><input type="checkbox" id="p3"><label for="p3">Revue hebdo cartes RTE zones mutualisation Plan de Campagne (PACA)</label></div>
+<div class="checklist-item"><input type="checkbox" id="p4"><label for="p4">Documenter memo projet "pivot mining → AI data center" (apprentissages IREN×MSFT)</label></div>
+</div>
+
+</div>
+
+<!-- Historique jours précédents -->
+<div class="day-content" data-day="2026-04-21">
+<h2>📅 Mardi 21 avril 2026 — Historique</h2>
+<p class="section-subtitle">Données archivées du jour précédent. Revenez au jour actuel pour le contenu frais.</p>
+<div class="card"><p>Sessions consultées hier : newsletter IA, veille terrains PACA, veille mining. Prix indicatifs : BTC ~75 324 $ (9h ET), ETH ~2 263 $ à l'ouverture.</p></div>
+</div>
+
+<div class="day-content" data-day="2026-04-20">
+<h2>📅 Lundi 20 avril 2026 — Historique</h2>
+<div class="card"><p>Bitcoin ~75 324 $ (9h ET), Ethereum ~2 263 $. Tensions US-Iran stables, marchés en hausse malgré la volatilité.</p></div>
+</div>
+
+<div class="day-content" data-day="2026-04-19">
+<h2>📅 Dimanche 19 avril 2026 — Historique</h2>
+<div class="card"><p>Pas de veille active le dimanche. Dashboard non régénéré.</p></div>
+</div>
+
+<div class="day-content" data-day="2026-04-18">
+<h2>📅 Samedi 18 avril 2026 — Historique</h2>
+<div class="card"><p>GEOD ~0,12 $ (CoinGecko snapshot). Marché crypto consolide sur WE.</p></div>
+</div>
+
+<div class="day-content" data-day="2026-04-17">
+<h2>📅 Vendredi 17 avril 2026 — Historique</h2>
+<div class="card"><p>Difficulté Bitcoin –2,43 % à 135,59 T. Hashprice +13,65 %. Déclaration FATF sur actifs numériques.</p></div>
+</div>
+
+<div class="day-content" data-day="2026-04-16">
+<h2>📅 Jeudi 16 avril 2026 — Historique</h2>
+<div class="card"><p>Bitcoin hold on profit-taking. Cautious outlook. Pas de mouvement majeur sur les projets.</p></div>
+</div>
 
 <script>
-// Tab switching
-document.querySelectorAll('.tab').forEach(tab => {
-  tab.addEventListener('click', () => {
-    const target = tab.dataset.tab;
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    tab.classList.add('active');
-    document.querySelectorAll('.day-view.active .tab-content').forEach(tc => tc.classList.remove('active'));
-    document.querySelectorAll('.day-view.active .tab-content[data-tab="' + target + '"]').forEach(tc => tc.classList.add('active'));
-  });
-});
-
-// Day switching
-document.querySelectorAll('.day-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    if (btn.classList.contains('empty')) return;
-    const day = btn.dataset.day;
-    document.querySelectorAll('.day-btn').forEach(b => b.classList.remove('active'));
+// Navigation par jour
+document.querySelectorAll('#nav-dates button').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    const day=btn.dataset.day;
+    document.querySelectorAll('#nav-dates button').forEach(b=>b.classList.remove('active'));
     btn.classList.add('active');
-    document.querySelectorAll('.day-view').forEach(dv => dv.classList.remove('active'));
-    const view = document.getElementById('day-' + day);
-    if (view) {
-      view.classList.add('active');
-      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-      document.querySelector('.tab[data-tab="overview"]').classList.add('active');
-      view.querySelectorAll('.tab-content').forEach(tc => tc.classList.remove('active'));
-      const firstTab = view.querySelector('.tab-content[data-tab="overview"]');
-      if (firstTab) firstTab.classList.add('active');
-    }
+    document.querySelectorAll('.day-content').forEach(c=>c.classList.remove('active'));
+    const target=document.querySelector('.day-content[data-day="'+day+'"]');
+    if(target)target.classList.add('active');
+    window.scrollTo({top:0,behavior:'smooth'});
   });
 });
 
-// Checkbox localStorage
-const STORAGE_KEY = 'dashboard_anthony_checks_v2';
-function loadChecks() {
-  try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); } catch(e) { return {}; }
-}
-function saveChecks(data) {
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch(e) {}
-}
-const checksData = loadChecks();
-document.querySelectorAll('.checkbox-item input[type="checkbox"]').forEach(cb => {
-  const key = cb.dataset.key;
-  if (checksData[key]) { cb.checked = true; cb.closest('.checkbox-item').classList.add('done'); }
-  cb.addEventListener('change', () => {
-    const d = loadChecks();
-    if (cb.checked) { d[key] = true; cb.closest('.checkbox-item').classList.add('done'); }
-    else { delete d[key]; cb.closest('.checkbox-item').classList.remove('done'); }
-    saveChecks(d);
+// Checklist localStorage
+document.querySelectorAll('.checklist-item input[type=checkbox]').forEach(cb=>{
+  const key='dashboard-'+cb.id;
+  const saved=localStorage.getItem(key);
+  if(saved==='1'){cb.checked=true;cb.closest('.checklist-item').classList.add('done');}
+  cb.addEventListener('change',()=>{
+    localStorage.setItem(key,cb.checked?'1':'0');
+    cb.closest('.checklist-item').classList.toggle('done',cb.checked);
   });
 });
 
-// Crypto chart — BTC & ETH semaine du 14 au 20 avril 2026
-const cryptoCanvas = document.getElementById('cryptoChart20');
-if (cryptoCanvas && typeof Chart !== 'undefined') {
-  new Chart(cryptoCanvas, {
-    type: 'line',
-    data: {
-      labels: ['14 avr', '15 avr', '16 avr', '17 avr', '18 avr', '19 avr', '20 avr'],
-      datasets: [
-        { label: 'BTC (USD)', data: [74415, 75200, 76100, 76400, 74800, 77319, 75000], borderColor: '#f7931a', backgroundColor: 'rgba(247,147,26,0.1)', tension: 0.35, yAxisID: 'yBTC' },
-        { label: 'ETH (USD)', data: [2311, 2330, 2390, 2355, 2335, 2424, 2450], borderColor: '#627eea', backgroundColor: 'rgba(98,126,234,0.1)', tension: 0.35, yAxisID: 'yETH' }
-      ]
+// Chart KPI évolution 7 jours (prix BTC)
+const ctx1=document.getElementById('chartKPI');
+if(ctx1){
+  new Chart(ctx1,{
+    type:'line',
+    data:{
+      labels:['16 avr','17 avr','18 avr','19 avr','20 avr','21 avr','22 avr'],
+      datasets:[{label:'BTC ($)',data:[74200,74800,75100,75000,75324,75901,76535],borderColor:'#f59e0b',backgroundColor:'rgba(245,158,11,0.1)',tension:0.3,fill:true,yAxisID:'y'},
+      {label:'ETH ($)',data:[2180,2210,2240,2250,2263,2314,2322],borderColor:'#60a5fa',backgroundColor:'rgba(96,165,250,0.1)',tension:0.3,fill:true,yAxisID:'y1'}]
     },
-    options: {
-      responsive: true, maintainAspectRatio: true,
-      plugins: {
-        legend: { labels: { color: '#e0e0e0' } },
-        title: { display: true, text: 'BTC & ETH — semaine du 14 au 20 avril 2026', color: '#e94560', font: { size: 14, weight: 700 } }
-      },
-      scales: {
-        x: { ticks: { color: '#8892b0' }, grid: { color: 'rgba(35,53,84,0.4)' } },
-        yBTC: { position: 'left', ticks: { color: '#f7931a', callback: v => '$' + v.toLocaleString() }, grid: { color: 'rgba(35,53,84,0.4)' } },
-        yETH: { position: 'right', ticks: { color: '#627eea', callback: v => '$' + v.toLocaleString() }, grid: { display: false } }
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{labels:{color:'#e5e7eb'}},title:{display:true,text:'Évolution BTC & ETH sur 7 jours',color:'#e5e7eb'}},
+      scales:{
+        x:{ticks:{color:'#9ca3af'},grid:{color:'#233554'}},
+        y:{type:'linear',position:'left',ticks:{color:'#f59e0b'},grid:{color:'#233554'},title:{display:true,text:'BTC',color:'#f59e0b'}},
+        y1:{type:'linear',position:'right',ticks:{color:'#60a5fa'},grid:{drawOnChartArea:false},title:{display:true,text:'ETH',color:'#60a5fa'}}
       }
     }
   });
 }
-</script>
 
+// Chart Crypto hashrate
+const ctx2=document.getElementById('chartCrypto');
+if(ctx2){
+  new Chart(ctx2,{
+    type:'bar',
+    data:{
+      labels:['Hashrate BTC (EH/s)','Difficulté (T)','Revenu/j (BTC pré-halving)','Revenu/j (BTC post-halving)','Cible IA fin 2026 (%)'],
+      datasets:[{label:'État mining 22 avril 2026',data:[995,135.59,900,437,70],backgroundColor:['#4ade80','#f59e0b','#60a5fa','#e94560','#a78bfa'],borderColor:'#233554',borderWidth:1}]
+    },
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{labels:{color:'#e5e7eb'}},title:{display:true,text:'Mining BTC — snapshot 22 avril 2026',color:'#e5e7eb'}},
+      scales:{x:{ticks:{color:'#9ca3af'},grid:{color:'#233554'}},y:{ticks:{color:'#9ca3af'},grid:{color:'#233554'}}}
+    }
+  });
+}
+</script>
 </body>
 </html>
